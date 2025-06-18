@@ -1,7 +1,6 @@
 "use client"
 
 import Link from "next/link"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import {
   Bot,
@@ -14,10 +13,10 @@ import {
   FolderIcon as FolderTemplate,
   FileOutput,
   Users,
-  ArrowRight,
   Settings,
   Plus,
   X,
+  Share2,
 } from "lucide-react"
 
 import { useState } from "react"
@@ -25,6 +24,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { ResourceCard } from "@/components/resource-card" // Import the new ResourceCard component
 
 const resourceCategories = [
   // 🤖 AI 에이전트 설정
@@ -255,6 +255,83 @@ export default function ResourcePage() {
           <h1 className="text-3xl font-bold text-gray-900">Resource Center</h1>
           <p className="text-gray-600 mt-2">AI 에이전트와 PM 도구를 체계적으로 관리하는 리소스 센터입니다</p>
         </div>
+        <div className="flex space-x-3">
+          <Link href="/marketplace/upload">
+            <Button variant="outline">
+              <Share2 className="h-4 w-4 mr-2" />
+              마켓플레이스에 공유
+            </Button>
+          </Link>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button>
+                <Settings className="h-4 w-4 mr-2" />
+                리소스 설정
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>새 리소스 타입 추가</DialogTitle>
+              </DialogHeader>
+
+              <div className="space-y-4 py-4">
+                <div>
+                  <Label htmlFor="resourceTitle">Resource Type 이름</Label>
+                  <Input
+                    id="resourceTitle"
+                    value={newResourceType.title}
+                    onChange={(e) => setNewResourceType({ ...newResourceType, title: e.target.value })}
+                    placeholder="예: Knowledge Base"
+                    className="mt-1"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="resourceDescription">설명</Label>
+                  <Textarea
+                    id="resourceDescription"
+                    value={newResourceType.description}
+                    onChange={(e) => setNewResourceType({ ...newResourceType, description: e.target.value })}
+                    placeholder="이 리소스 타입에 대한 설명을 입력하세요"
+                    rows={3}
+                    className="mt-1"
+                  />
+                </div>
+
+                <div>
+                  <Label>자원 예시</Label>
+                  {newResourceType.features.map((feature, index) => (
+                    <div key={index} className="flex gap-2 mt-2">
+                      <Input
+                        value={feature}
+                        onChange={(e) => updateFeature(index, e.target.value)}
+                        placeholder={`자원 예시 ${index + 1}`}
+                      />
+                      {newResourceType.features.length > 1 && (
+                        <Button variant="outline" size="sm" onClick={() => removeFeature(index)}>
+                          <X className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                  <Button variant="outline" size="sm" onClick={addFeature} className="mt-2">
+                    <Plus className="h-4 w-4 mr-2" />
+                    예시 추가
+                  </Button>
+                </div>
+
+                <div className="flex gap-2 pt-4">
+                  <Button onClick={createNewResourceType} className="flex-1">
+                    생성
+                  </Button>
+                  <Button variant="outline" onClick={cancelCreate} className="flex-1">
+                    취소
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       {/* 리소스 카테고리별 섹션 */}
@@ -269,80 +346,12 @@ export default function ResourcePage() {
             </div>
             <h2 className="text-xl font-semibold text-gray-800">{category.category}</h2>
             <div className="text-sm text-gray-500">({category.items.length}개)</div>
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="ml-2 h-7 w-7 p-0 rounded-full"
-                  onClick={() => {
-                    setSelectedCategory(categories.findIndex((c) => c.id === category.id))
-                    setIsDialogOpen(true)
-                  }}
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </DialogTrigger>
-            </Dialog>
           </div>
 
           {/* 카테고리 아이템들 */}
           <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {category.items.map((item) => (
-              <Card key={item.id} className="hover:shadow-lg transition-all duration-300 group flex flex-col">
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <div
-                      className={`h-10 w-10 bg-gradient-to-r ${item.color} rounded-lg flex items-center justify-center`}
-                    >
-                      <item.icon className="h-5 w-5 text-white" />
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xs text-gray-500">총 {item.stats.total}개</p>
-                      <p className="text-xs font-medium text-green-600">활성 {item.stats.active}개</p>
-                    </div>
-                  </div>
-                  <CardTitle className="text-base">{item.title}</CardTitle>
-                  <CardDescription className="text-gray-600 text-xs leading-relaxed">
-                    {item.description}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="flex flex-col justify-between pt-0 h-full">
-                  <div className="space-y-3 mb-4">
-                    <div className="flex flex-wrap gap-1.5">
-                      {item.features.slice(0, 4).map((feature, index) => {
-                        const tagColors = [
-                          "bg-green-100 text-green-700 border border-green-200",
-                          "bg-purple-100 text-purple-700 border border-purple-200",
-                          "bg-orange-100 text-orange-700 border border-orange-200",
-                          "bg-blue-100 text-blue-700 border border-blue-200",
-                        ]
-                        return (
-                          <span
-                            key={index}
-                            className={`${tagColors[index % 4]} px-2 py-0.5 rounded-full text-xs font-medium`}
-                          >
-                            {feature}
-                          </span>
-                        )
-                      })}
-                    </div>
-                    {item.features.length > 4 && (
-                      <p className="text-xs text-gray-500">+{item.features.length - 4}개 더</p>
-                    )}
-                  </div>
-
-                  <Link href={item.href} className="mt-auto">
-                    <Button
-                      size="sm"
-                      className="w-full group-hover:bg-gradient-to-r group-hover:from-blue-600 group-hover:to-purple-600 transition-all"
-                    >
-                      관리하기
-                      <ArrowRight className="h-3 w-3 ml-2 group-hover:translate-x-1 transition-transform" />
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
+              <ResourceCard key={item.id} item={item} /> // Use the new ResourceCard component
             ))}
           </div>
         </div>

@@ -26,6 +26,8 @@ import {
   Plus,
   GitBranch,
   FileOutput,
+  Store,
+  Globe,
 } from "lucide-react"
 
 // 최신 생성된 프로젝트 3개 (실제로는 API에서 가져와야 함)
@@ -101,6 +103,15 @@ const navigation = [
     ],
   },
   { name: "History", href: "/history", icon: Archive },
+  {
+    name: "Community", // New Community menu
+    href: "/marketplace",
+    icon: Globe, // Using Globe icon for Community
+    subItems: [
+      { name: "Marketplace", href: "/marketplace", icon: Store }, // Marketplace sub-item
+      // Add other community sub-items here if needed in the future
+    ],
+  },
 ]
 
 export function ModernSidebar() {
@@ -122,6 +133,7 @@ export function ModernSidebar() {
 
   const isTotalProjectActive = pathname.startsWith("/total-projects")
   const isMeetingActive = pathname.startsWith("/meeting")
+  const isCommunityActive = pathname.startsWith("/marketplace") // New active state for Community
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -218,7 +230,9 @@ export function ModernSidebar() {
                 ? isMeetingActive
                 : item.name === "Resource"
                   ? isResourceActive
-                  : pathname === item.href
+                  : item.name === "Community" // Check for Community active state
+                    ? isCommunityActive
+                    : pathname === item.href
           const hasSubItems = item.subItems && item.subItems.length > 0
 
           return (
