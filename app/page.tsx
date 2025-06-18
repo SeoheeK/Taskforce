@@ -1,229 +1,92 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
-import {
-  Users,
-  Briefcase,
-  Clock,
-  TrendingUp,
-  CheckCircle,
-  Activity,
-  Calendar,
-  MessageSquare,
-  FileText,
-  Plus,
-  ArrowRight,
-  BarChart3,
-  Target,
-  Zap,
-  Star,
-} from "lucide-react"
-import Link from "next/link"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { ArrowRight, Sparkles, Users, Zap } from "lucide-react"
+import Image from "next/image"
 
-interface DashboardStats {
-  totalProjects: number
-  activeProjects: number
-  completedProjects: number
-  totalMembers: number
-  avgProgress: number
-  upcomingDeadlines: number
-}
+const slogans = [
+  "AI 팀원들과 문제를 해결해보세요",
+  "당신의 문제에 딱 맞는 AI 전문가를 구성하세요",
+  "협업하는 AI, 이제는 혼자가 아닙니다",
+  "AI와 함께 더 나은 결정을 만들어보세요",
+  "각기 다른 역할, 하나의 목표",
+  "생각하는 에이전트들이 팀이 됩니다",
+  "아이디어만 주세요, 나머지는 AI가 처리합니다",
+  "여러 명의 AI가 머리를 맞대는 순간",
+  "팀 빌딩? 이제는 AI로",
+  "Mission accepted. AI 팀이 곧바로 출동합니다",
+]
 
-interface RecentProject {
-  id: number
-  title: string
-  status: "planning" | "in-progress" | "review" | "completed"
-  progress: number
-  dueDate: string
-  team: string[]
-  priority: "high" | "medium" | "low"
-}
-
-interface RecentActivity {
-  id: number
-  type: "project_created" | "task_completed" | "meeting_scheduled" | "deliverable_submitted"
-  title: string
-  description: string
-  timestamp: string
-  user: string
-}
-
-export default function DashboardPage() {
-  const [stats, setStats] = useState<DashboardStats>({
-    totalProjects: 0,
-    activeProjects: 0,
-    completedProjects: 0,
-    totalMembers: 0,
-    avgProgress: 0,
-    upcomingDeadlines: 0,
-  })
-
-  const [recentProjects, setRecentProjects] = useState<RecentProject[]>([])
-  const [recentActivities, setRecentActivities] = useState<RecentActivity[]>([])
+export default function HomePage() {
   const router = useRouter()
+  const [currentSloganIndex, setCurrentSloganIndex] = useState(0)
+  const [isVisible, setIsVisible] = useState(true)
+  const [isLoggedIn, setIsLoggedIn] = useState(false) // 로그인 상태
+  const [isSliding, setIsSliding] = useState(false) // 슬라이딩 애니메이션 상태
 
-  const [isSliding, setIsSliding] = useState(false)
-  const [isLoggedIn, setIsLoggedIn] = useState(false) // 실제로는 auth context에서 가져올 값
-
-  // 로그인 상태 확인 (임시로 localStorage 사용)
+  // 로그인 상태 확인 (실제로는 JWT 토큰이나 세션 확인)
   useEffect(() => {
-    const checkLoginStatus = () => {
-      // 실제로는 JWT 토큰이나 세션 확인
-      const token = localStorage.getItem("authToken")
-      setIsLoggedIn(!!token)
-    }
-    checkLoginStatus()
+    // 임시로 localStorage에서 로그인 상태 확인
+    const loginStatus = localStorage.getItem("isLoggedIn") === "true"
+    setIsLoggedIn(loginStatus)
   }, [])
 
-  const handleStartProject = async () => {
+  const handleStartNewProject = () => {
     if (!isLoggedIn) {
       // 로그인되지 않은 경우 로그인 페이지로 이동
       router.push("/login")
       return
     }
 
-    // 슬라이딩 애니메이션 시작
+    // 로그인된 경우 슬라이딩 애니메이션과 함께 새 프로젝트 페이지로 이동
     setIsSliding(true)
-
-    // 애니메이션 완료 후 페이지 이동
     setTimeout(() => {
       router.push("/taskforce/new")
-    }, 500)
+    }, 500) // 애니메이션 시간과 맞춤
   }
+
+  const features = [
+    {
+      image: "/images/ai-personas.png",
+      title: "AI 페르소나 구성",
+      description: "다양한 전문 분야의 AI 페르소나를 선택하여 최적의 팀을 구성하세요",
+      gradient: "from-blue-500 to-cyan-500",
+    },
+    {
+      image: "/images/mission-collaboration.png",
+      title: "미션 기반 협업",
+      description: "명확한 목표와 역할 분담으로 효율적인 문제 해결을 경험하세요",
+      gradient: "from-purple-500 to-pink-500",
+    },
+    {
+      image: "/images/intelligent-interaction.png",
+      title: "지능형 상호작용",
+      description: "AI들이 서로 토론하고 협력하여 최상의 결과를 도출합니다",
+      gradient: "from-green-500 to-emerald-500",
+    },
+    {
+      image: "/images/real-time-collaboration.png",
+      title: "실시간 협업",
+      description: "AI 팀원들의 작업 과정을 실시간으로 모니터링하고 참여하세요",
+      gradient: "from-orange-500 to-red-500",
+    },
+  ]
 
   useEffect(() => {
-    // 임시 데이터 로딩
-    setStats({
-      totalProjects: 12,
-      activeProjects: 8,
-      completedProjects: 4,
-      totalMembers: 24,
-      avgProgress: 67,
-      upcomingDeadlines: 3,
-    })
+    const interval = setInterval(() => {
+      setIsVisible(false)
+      setTimeout(() => {
+        setCurrentSloganIndex((prev) => (prev + 1) % slogans.length)
+        setIsVisible(true)
+      }, 300)
+    }, 4000)
 
-    setRecentProjects([
-      {
-        id: 1,
-        title: "Web Designing",
-        status: "in-progress",
-        progress: 75,
-        dueDate: "2024-01-15",
-        team: ["디자이너 마크", "개발자 사라"],
-        priority: "high",
-      },
-      {
-        id: 2,
-        title: "Mobile App Development",
-        status: "in-progress",
-        progress: 45,
-        dueDate: "2024-02-28",
-        team: ["개발자 사라", "디자이너 마크", "분석가 리나"],
-        priority: "high",
-      },
-      {
-        id: 3,
-        title: "Marketing Campaign",
-        status: "review",
-        progress: 90,
-        dueDate: "2024-01-20",
-        team: ["마케터 제니"],
-        priority: "medium",
-      },
-    ])
-
-    setRecentActivities([
-      {
-        id: 1,
-        type: "project_created",
-        title: "새 프로젝트 생성",
-        description: "Data Analytics Platform 프로젝트가 생성되었습니다",
-        timestamp: "2024-01-13T10:30:00Z",
-        user: "분석가 리나",
-      },
-      {
-        id: 2,
-        type: "task_completed",
-        title: "작업 완료",
-        description: "사용자 리서치 작업이 완료되었습니다",
-        timestamp: "2024-01-13T09:15:00Z",
-        user: "디자이너 마크",
-      },
-      {
-        id: 3,
-        type: "meeting_scheduled",
-        title: "회의 예약",
-        description: "주간 진행 상황 점검 회의가 예약되었습니다",
-        timestamp: "2024-01-13T08:45:00Z",
-        user: "PM 알렉스",
-      },
-    ])
+    return () => clearInterval(interval)
   }, [])
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "completed":
-        return "bg-green-100 text-green-800"
-      case "in-progress":
-        return "bg-blue-100 text-blue-800"
-      case "review":
-        return "bg-purple-100 text-purple-800"
-      case "planning":
-        return "bg-gray-100 text-gray-800"
-      default:
-        return "bg-gray-100 text-gray-800"
-    }
-  }
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case "high":
-        return "bg-red-100 text-red-800"
-      case "medium":
-        return "bg-yellow-100 text-yellow-800"
-      case "low":
-        return "bg-green-100 text-green-800"
-      default:
-        return "bg-gray-100 text-gray-800"
-    }
-  }
-
-  const getActivityIcon = (type: string) => {
-    switch (type) {
-      case "project_created":
-        return <Plus className="h-4 w-4 text-blue-600" />
-      case "task_completed":
-        return <CheckCircle className="h-4 w-4 text-green-600" />
-      case "meeting_scheduled":
-        return <Calendar className="h-4 w-4 text-purple-600" />
-      case "deliverable_submitted":
-        return <FileText className="h-4 w-4 text-orange-600" />
-      default:
-        return <Activity className="h-4 w-4 text-gray-600" />
-    }
-  }
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("ko-KR", {
-      month: "short",
-      day: "numeric",
-    })
-  }
-
-  const formatTimestamp = (timestamp: string) => {
-    const now = new Date()
-    const time = new Date(timestamp)
-    const diffInHours = Math.floor((now.getTime() - time.getTime()) / (1000 * 60 * 60))
-
-    if (diffInHours < 1) return "방금 전"
-    if (diffInHours < 24) return `${diffInHours}시간 전`
-    return `${Math.floor(diffInHours / 24)}일 전`
-  }
 
   return (
     <div
@@ -231,273 +94,172 @@ export default function DashboardPage() {
         isSliding ? "-translate-x-full" : "translate-x-0"
       }`}
     >
-      <div className="p-6 space-y-6">
-        {/* 헤더 */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-            <p className="text-gray-600 mt-2">프로젝트 현황과 최근 활동을 한눈에 확인하세요</p>
-          </div>
-          <div className="flex space-x-3">
-            <Button
-              size="lg"
-              onClick={handleStartProject}
-              disabled={isSliding}
-              className={`bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-12 py-4 text-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105 ${
-                isSliding ? "animate-pulse" : ""
-              }`}
-            >
-              {isSliding ? "Starting..." : "Start New AI Team Project"}
-              <ArrowRight className={`ml-3 h-6 w-6 transition-transform ${isSliding ? "translate-x-2" : ""}`} />
-            </Button>
-            <Link href="/total-projects">
-              <Button variant="outline">
-                <Briefcase className="h-4 w-4 mr-2" />
-                모든 프로젝트
+      {/* Hero Section */}
+      <div className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-purple-600/10"></div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
+          <div className="text-center">
+            {/* Title with Handwriting Font */}
+            <h1 className="text-8xl font-bold mb-4">
+              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                Taskforce
+              </span>
+            </h1>
+
+            {/* Animated Slogan */}
+            <div className="h-16 flex items-center justify-center mb-4">
+              <p
+                className={`text-2xl text-gray-700 max-w-3xl transition-all duration-300 ${
+                  isVisible ? "opacity-100 transform translate-y-0" : "opacity-0 transform translate-y-4"
+                }`}
+              >
+                {slogans[currentSloganIndex]}
+              </p>
+            </div>
+
+            {/* Main CTA Button */}
+            <div className="mb-6">
+              <Button
+                size="lg"
+                onClick={handleStartNewProject}
+                disabled={isSliding}
+                className={`bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-12 py-4 text-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105 ${
+                  isSliding ? "animate-pulse" : ""
+                }`}
+              >
+                {isSliding ? "Starting..." : "Start New AI Team Project"}
+                <ArrowRight className={`ml-3 h-6 w-6 transition-transform ${isSliding ? "translate-x-2" : ""}`} />
               </Button>
-            </Link>
+            </div>
+
+            {/* Auth Buttons */}
+            <div className="flex justify-center gap-6 mb-16">
+              {!isLoggedIn ? (
+                <>
+                  <Button
+                    variant="ghost"
+                    onClick={() => router.push("/login")}
+                    className="text-gray-600 hover:text-blue-600 text-lg underline-offset-4 hover:underline"
+                  >
+                    Log In
+                  </Button>
+                  <span className="text-gray-400 text-lg">|</span>
+                  <Button
+                    variant="ghost"
+                    onClick={() => router.push("/signup")}
+                    className="text-gray-600 hover:text-purple-600 text-lg underline-offset-4 hover:underline"
+                  >
+                    Sign Up
+                  </Button>
+                </>
+              ) : (
+                <div className="flex items-center gap-4">
+                  <span className="text-green-600 font-medium">✓ Logged in</span>
+                  <Button
+                    variant="ghost"
+                    onClick={() => {
+                      localStorage.removeItem("isLoggedIn")
+                      setIsLoggedIn(false)
+                    }}
+                    className="text-gray-600 hover:text-red-600 text-lg underline-offset-4 hover:underline"
+                  >
+                    Log Out
+                  </Button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
+      </div>
 
-        {/* 통계 카드 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-blue-600 text-sm font-medium">총 프로젝트</p>
-                  <p className="text-3xl font-bold text-blue-900">{stats.totalProjects}</p>
-                  <p className="text-blue-600 text-xs mt-1">
-                    활성 {stats.activeProjects}개 • 완료 {stats.completedProjects}개
-                  </p>
-                </div>
-                <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center">
-                  <Briefcase className="h-6 w-6 text-white" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-green-600 text-sm font-medium">평균 진행률</p>
-                  <p className="text-3xl font-bold text-green-900">{stats.avgProgress}%</p>
-                  <div className="w-20 bg-green-200 rounded-full h-2 mt-2">
-                    <div
-                      className="bg-green-600 h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${stats.avgProgress}%` }}
-                    />
-                  </div>
-                </div>
-                <div className="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center">
-                  <TrendingUp className="h-6 w-6 text-white" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-purple-600 text-sm font-medium">팀 멤버</p>
-                  <p className="text-3xl font-bold text-purple-900">{stats.totalMembers}</p>
-                  <p className="text-purple-600 text-xs mt-1">활성 참여자</p>
-                </div>
-                <div className="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center">
-                  <Users className="h-6 w-6 text-white" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-orange-600 text-sm font-medium">임박한 마감일</p>
-                  <p className="text-3xl font-bold text-orange-900">{stats.upcomingDeadlines}</p>
-                  <p className="text-orange-600 text-xs mt-1">7일 이내</p>
-                </div>
-                <div className="w-12 h-12 bg-orange-600 rounded-full flex items-center justify-center">
-                  <Clock className="h-6 w-6 text-white" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+      {/* Features Section */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <div className="text-center mb-20">
+          <h2 className="text-5xl font-bold text-gray-900 mb-6">AI 협업의 새로운 경험</h2>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+            다양한 전문성을 가진 AI 페르소나들이 팀을 이루어 복잡한 문제를 해결합니다
+          </p>
         </div>
 
-        {/* 메인 콘텐츠 */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* 최근 프로젝트 */}
-          <div className="lg:col-span-2">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="flex items-center">
-                    <Target className="h-5 w-5 mr-2 text-blue-600" />
-                    최근 프로젝트
-                  </CardTitle>
-                  <Link href="/total-projects">
-                    <Button variant="ghost" size="sm">
-                      전체 보기
-                      <ArrowRight className="h-4 w-4 ml-1" />
-                    </Button>
-                  </Link>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {features.map((feature, index) => (
+            <Card
+              key={index}
+              className="group hover:shadow-2xl transition-all duration-500 border-0 bg-white/90 backdrop-blur-sm hover:-translate-y-2"
+            >
+              <CardContent className="p-8 text-center">
+                <div className="relative w-24 h-24 mx-auto mb-8 overflow-hidden rounded-3xl">
+                  <div className={`absolute inset-0 bg-gradient-to-r ${feature.gradient} opacity-20`}></div>
+                  <Image
+                    src={feature.image || "/placeholder.svg"}
+                    alt={feature.title}
+                    fill
+                    className="object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
                 </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {recentProjects.map((project) => (
-                    <div
-                      key={project.id}
-                      className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
-                      onClick={() => router.push(`/total-projects/${project.id}`)}
-                    >
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-3 mb-2">
-                          <h4 className="font-semibold text-gray-900">{project.title}</h4>
-                          <Badge className={getStatusColor(project.status)}>
-                            {project.status === "in-progress"
-                              ? "진행중"
-                              : project.status === "review"
-                                ? "검토중"
-                                : project.status === "completed"
-                                  ? "완료"
-                                  : "기획중"}
-                          </Badge>
-                          <Badge className={getPriorityColor(project.priority)}>
-                            {project.priority === "high" ? "높음" : project.priority === "medium" ? "보통" : "낮음"}
-                          </Badge>
-                        </div>
-                        <div className="flex items-center space-x-4 text-sm text-gray-600">
-                          <div className="flex items-center">
-                            <Calendar className="h-4 w-4 mr-1" />
-                            <span>마감: {formatDate(project.dueDate)}</span>
-                          </div>
-                          <div className="flex items-center">
-                            <Users className="h-4 w-4 mr-1" />
-                            <span>{project.team.length}명</span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-3">
-                        <div className="text-right">
-                          <div className="text-sm font-medium text-blue-600">{project.progress}%</div>
-                          <Progress value={project.progress} className="w-20 h-2" />
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-4">{feature.title}</h3>
+                <p className="text-gray-600 leading-relaxed">{feature.description}</p>
               </CardContent>
             </Card>
-          </div>
-
-          {/* 최근 활동 */}
-          <div>
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Activity className="h-5 w-5 mr-2 text-green-600" />
-                  최근 활동
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {recentActivities.map((activity) => (
-                    <div key={activity.id} className="flex items-start space-x-3">
-                      <div className="flex-shrink-0 mt-1">{getActivityIcon(activity.type)}</div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900">{activity.title}</p>
-                        <p className="text-sm text-gray-600 line-clamp-2">{activity.description}</p>
-                        <div className="flex items-center justify-between mt-1">
-                          <span className="text-xs text-gray-500">{activity.user}</span>
-                          <span className="text-xs text-gray-400">{formatTimestamp(activity.timestamp)}</span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          ))}
         </div>
+      </div>
 
-        {/* 빠른 액션 */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <Zap className="h-5 w-5 mr-2 text-yellow-600" />
-              빠른 액션
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <Link href="/taskforce/new">
-                <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center space-y-2">
-                  <Plus className="h-6 w-6 text-blue-600" />
-                  <span className="text-sm font-medium">새 태스크포스</span>
-                </Button>
+      {/* Enhanced Quick Access Section */}
+      <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <h2 className="text-4xl font-bold text-white mb-4">지금 바로 시작해보세요</h2>
+            <p className="text-xl text-white/80 mb-12">강력한 AI 협업 도구들을 경험해보세요</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <Link href="/personas" className="group">
+                <Card className="bg-white/15 backdrop-blur-md border-white/30 hover:bg-white/25 transition-all duration-300 hover:scale-105">
+                  <CardContent className="p-8 text-center">
+                    <div className="w-16 h-16 mx-auto mb-6 bg-white/20 rounded-2xl flex items-center justify-center">
+                      <Users className="h-8 w-8 text-white group-hover:scale-110 transition-transform" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-white mb-3">AI 페르소나</h3>
+                    <p className="text-white/90 leading-relaxed">전문가 AI들을 만나보세요</p>
+                  </CardContent>
+                </Card>
               </Link>
-              <Link href="/meeting/new">
-                <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center space-y-2">
-                  <MessageSquare className="h-6 w-6 text-green-600" />
-                  <span className="text-sm font-medium">회의 예약</span>
-                </Button>
+
+              <Link href="/resource" className="group">
+                <Card className="bg-white/15 backdrop-blur-md border-white/30 hover:bg-white/25 transition-all duration-300 hover:scale-105">
+                  <CardContent className="p-8 text-center">
+                    <div className="w-16 h-16 mx-auto mb-6 bg-white/20 rounded-2xl flex items-center justify-center">
+                      <Zap className="h-8 w-8 text-white group-hover:scale-110 transition-transform" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-white mb-3">리소스 관리</h3>
+                    <p className="text-white/90 leading-relaxed">협업 도구들을 설정하세요</p>
+                  </CardContent>
+                </Card>
               </Link>
-              <Link href="/personas">
-                <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center space-y-2">
-                  <Users className="h-6 w-6 text-purple-600" />
-                  <span className="text-sm font-medium">AI 페르소나</span>
-                </Button>
-              </Link>
-              <Link href="/history">
-                <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center space-y-2">
-                  <BarChart3 className="h-6 w-6 text-orange-600" />
-                  <span className="text-sm font-medium">프로젝트 히스토리</span>
-                </Button>
+
+              <Link href="/deliverables" className="group">
+                <Card className="bg-white/15 backdrop-blur-md border-white/30 hover:bg-white/25 transition-all duration-300 hover:scale-105">
+                  <CardContent className="p-8 text-center">
+                    <div className="w-16 h-16 mx-auto mb-6 bg-white/20 rounded-2xl flex items-center justify-center">
+                      <Sparkles className="h-8 w-8 text-white group-hover:scale-110 transition-transform" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-white mb-3">성과물</h3>
+                    <p className="text-white/90 leading-relaxed">완성된 결과물을 확인하세요</p>
+                  </CardContent>
+                </Card>
               </Link>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
+      </div>
 
-        {/* 성과 요약 */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="bg-gradient-to-br from-indigo-50 to-indigo-100 border-indigo-200">
-            <CardContent className="p-6 text-center">
-              <div className="w-16 h-16 bg-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Star className="h-8 w-8 text-white" />
-              </div>
-              <h3 className="text-lg font-semibold text-indigo-900 mb-2">이번 달 성과</h3>
-              <p className="text-3xl font-bold text-indigo-600 mb-1">4개</p>
-              <p className="text-sm text-indigo-600">프로젝트 완료</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-teal-50 to-teal-100 border-teal-200">
-            <CardContent className="p-6 text-center">
-              <div className="w-16 h-16 bg-teal-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <CheckCircle className="h-8 w-8 text-white" />
-              </div>
-              <h3 className="text-lg font-semibold text-teal-900 mb-2">품질 점수</h3>
-              <p className="text-3xl font-bold text-teal-600 mb-1">4.8</p>
-              <p className="text-sm text-teal-600">평균 만족도</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-rose-50 to-rose-100 border-rose-200">
-            <CardContent className="p-6 text-center">
-              <div className="w-16 h-16 bg-rose-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <TrendingUp className="h-8 w-8 text-white" />
-              </div>
-              <h3 className="text-lg font-semibold text-rose-900 mb-2">효율성</h3>
-              <p className="text-3xl font-bold text-rose-600 mb-1">92%</p>
-              <p className="text-sm text-rose-600">목표 대비 달성률</p>
-            </CardContent>
-          </Card>
+      {/* Enhanced Footer */}
+      <div className="bg-gray-900 py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h3 className="text-2xl font-semibold text-white mb-4">AI 협업 플랫폼 Taskforce</h3>
+          <p className="text-gray-400 mb-8 max-w-2xl mx-auto">
+            지능형 에이전트들과 함께하는 협업의 미래를 경험해보세요. 복잡한 문제도 AI 팀과 함께라면 간단해집니다.
+          </p>
+          <p className="text-sm text-gray-500">© 2024 Taskforce. All rights reserved.</p>
         </div>
       </div>
     </div>

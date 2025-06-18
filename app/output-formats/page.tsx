@@ -1,152 +1,155 @@
 "use client"
 
-import type React from "react"
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
+import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Switch } from "@/components/ui/switch"
-import { Plus, Edit, Trash2, FileText, Code, ImageIcon, Database } from "lucide-react"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
+import { FileText, Plus, Edit, Trash2, Search, Download } from "lucide-react"
 
-interface OutputFormat {
-  id: number
-  name: string
-  description: string
-  file_extension: string
-  mime_type: string
-  category: string
-  template_structure: string
-  validation_rules: string[]
-  example_output: string
-  supports_versioning: boolean
-  is_binary: boolean
-}
+const initialFormats = [
+  {
+    id: 1,
+    title: "회의록 템플릿",
+    description: "표준 회의록 포맷",
+    template: `# 회의록
+## 회의 정보
+- 일시: [날짜 시간]
+- 참석자: [참석자 목록]
+- 주제: [회의 주제]
 
-const categories = [
-  { value: "document", label: "문서", icon: FileText },
-  { value: "code", label: "코드", icon: Code },
-  { value: "media", label: "미디어", icon: ImageIcon },
-  { value: "data", label: "데이터", icon: Database },
+## 논의 사항
+[주요 논의 내용]
+
+## 결정 사항
+[결정된 내용]
+
+## 액션 아이템
+- [ ] [할 일 1] (담당자: [이름], 기한: [날짜])
+- [ ] [할 일 2] (담당자: [이름], 기한: [날짜])`,
+    category: "회의",
+    format: "Markdown",
+    usage: 34,
+  },
+  {
+    id: 2,
+    title: "프로젝트 계획서",
+    description: "프로젝트 계획 문서 포맷",
+    template: `# 프로젝트 계획서
+## 프로젝트 개요
+- 프로젝트명: [프로젝트명]
+- 기간: [시작일] ~ [종료일]
+- 예산: [예산]
+
+## 목표
+[프로젝트 목표]
+
+## 주요 마일스톤
+| 단계 | 내용 | 기한 | 담당자 |
+|------|------|------|--------|
+| 1단계 | [내용] | [날짜] | [담당자] |
+| 2단계 | [내용] | [날짜] | [담당자] |
+
+## 리스크 관리
+[예상 리스크 및 대응방안]`,
+    category: "기획",
+    format: "Markdown",
+    usage: 28,
+  },
+  {
+    id: 3,
+    title: "분석 보고서",
+    description: "데이터 분석 결과 보고서 포맷",
+    template: `# 분석 보고서
+## 요약
+[분석 결과 요약]
+
+## 분석 방법
+[사용된 분석 방법]
+
+## 주요 발견사항
+1. [발견사항 1]
+2. [발견사항 2]
+3. [발견사항 3]
+
+## 권장사항
+[권장사항 및 다음 단계]
+
+## 부록
+[추가 데이터 및 차트]`,
+    category: "분석",
+    format: "Markdown",
+    usage: 19,
+  },
 ]
 
 export default function OutputFormatsPage() {
-  const [outputFormats, setOutputFormats] = useState<OutputFormat[]>([])
+  const [formats, setFormats] = useState(initialFormats)
+  const [searchTerm, setSearchTerm] = useState("")
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [editingFormat, setEditingFormat] = useState<OutputFormat | null>(null)
-  const [formData, setFormData] = useState({
-    name: "",
+  const [editingFormat, setEditingFormat] = useState(null)
+  const [newFormat, setNewFormat] = useState({
+    title: "",
     description: "",
-    file_extension: "",
-    mime_type: "",
-    category: "document",
-    template_structure: "",
-    validation_rules: "",
-    example_output: "",
-    supports_versioning: false,
-    is_binary: false,
+    template: "",
+    category: "",
+    format: "Markdown",
   })
 
-  useEffect(() => {
-    fetchOutputFormats()
-  }, [])
+  const filteredFormats = formats.filter(
+    (format) =>
+      format.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      format.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      format.category.toLowerCase().includes(searchTerm.toLowerCase()),
+  )
 
-  const fetchOutputFormats = async () => {
-    try {
-      const response = await fetch("/api/output-formats")
-      const data = await response.json()
-      setOutputFormats(data)
-    } catch (error) {
-      console.error("산출물 형식 로딩 실패:", error)
+  const handleSave = () => {
+    if (editingFormat) {
+      setFormats(formats.map((f) => (f.id === editingFormat.id ? { ...editingFormat, ...newFormat } : f)))
+    } else {
+      const newId = Math.max(...formats.map((f) => f.id)) + 1
+      setFormats([
+        ...formats,
+        {
+          id: newId,
+          ...newFormat,
+          usage: 0,
+        },
+      ])
     }
+
+    setNewFormat({ title: "", description: "", template: "", category: "", format: "Markdown" })
+    setEditingFormat(null)
+    setIsDialogOpen(false)
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    try {
-      const url = editingFormat ? `/api/output-formats/${editingFormat.id}` : "/api/output-formats"
-      const method = editingFormat ? "PUT" : "POST"
-
-      const payload = {
-        ...formData,
-        validation_rules: formData.validation_rules
-          .split(",")
-          .map((s) => s.trim())
-          .filter(Boolean),
-      }
-
-      await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      })
-
-      setIsDialogOpen(false)
-      setEditingFormat(null)
-      resetForm()
-      fetchOutputFormats()
-    } catch (error) {
-      console.error("산출물 형식 저장 실패:", error)
-    }
-  }
-
-  const handleEdit = (outputFormat: OutputFormat) => {
-    setEditingFormat(outputFormat)
-    setFormData({
-      name: outputFormat.name,
-      description: outputFormat.description,
-      file_extension: outputFormat.file_extension,
-      mime_type: outputFormat.mime_type,
-      category: outputFormat.category,
-      template_structure: outputFormat.template_structure,
-      validation_rules: outputFormat.validation_rules.join(", "),
-      example_output: outputFormat.example_output,
-      supports_versioning: outputFormat.supports_versioning,
-      is_binary: outputFormat.is_binary,
+  const handleEdit = (format) => {
+    setEditingFormat(format)
+    setNewFormat({
+      title: format.title,
+      description: format.description,
+      template: format.template,
+      category: format.category,
+      format: format.format,
     })
     setIsDialogOpen(true)
   }
 
-  const handleDelete = async (id: number) => {
-    if (confirm("정말로 이 산출물 형식을 삭제하시겠습니까?")) {
-      try {
-        await fetch(`/api/output-formats/${id}`, { method: "DELETE" })
-        fetchOutputFormats()
-      } catch (error) {
-        console.error("산출물 형식 삭제 실패:", error)
-      }
-    }
+  const handleDelete = (id) => {
+    setFormats(formats.filter((f) => f.id !== id))
   }
 
-  const resetForm = () => {
-    setFormData({
-      name: "",
-      description: "",
-      file_extension: "",
-      mime_type: "",
-      category: "document",
-      template_structure: "",
-      validation_rules: "",
-      example_output: "",
-      supports_versioning: false,
-      is_binary: false,
-    })
-  }
-
-  const getCategoryInfo = (category: string) => {
-    const cat = categories.find((c) => c.value === category)
-    return cat || { label: category, icon: FileText }
+  const handleDownload = (format) => {
+    const blob = new Blob([format.template], { type: "text/markdown" })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = `${format.title}.md`
+    a.click()
+    URL.revokeObjectURL(url)
   }
 
   return (
@@ -154,226 +157,155 @@ export default function OutputFormatsPage() {
       {/* 헤더 */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">산출물 형식 관리</h1>
-          <p className="text-gray-600 mt-2">Agent들이 생성하는 산출물의 형태와 구조를 정의하고 관리하세요</p>
+          <h1 className="text-3xl font-bold text-gray-900 flex items-center">
+            <FileText className="h-8 w-8 mr-3 text-green-600" />
+            Output Format 관리
+          </h1>
+          <p className="text-gray-600 mt-2">AI가 출력할 문서 포맷을 정의하고 관리합니다</p>
         </div>
-
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button
               onClick={() => {
                 setEditingFormat(null)
-                resetForm()
+                setNewFormat({ title: "", description: "", template: "", category: "", format: "Markdown" })
               }}
-              className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
             >
-              <Plus className="h-4 w-4 mr-2" />새 산출물 형식
+              <Plus className="h-4 w-4 mr-2" />새 포맷 추가
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>{editingFormat ? "산출물 형식 수정" : "새 산출물 형식 생성"}</DialogTitle>
-              <DialogDescription>Agent가 생성할 산출물 형식의 상세 정보를 입력해주세요</DialogDescription>
+              <DialogTitle>{editingFormat ? "포맷 수정" : "새 포맷 추가"}</DialogTitle>
             </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="name">형식 이름</Label>
+                  <Label htmlFor="title">포맷명</Label>
                   <Input
-                    id="name"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="예: Markdown Document"
-                    required
+                    id="title"
+                    value={newFormat.title}
+                    onChange={(e) => setNewFormat({ ...newFormat, title: e.target.value })}
+                    placeholder="포맷명을 입력하세요"
                   />
                 </div>
                 <div>
                   <Label htmlFor="category">카테고리</Label>
-                  <Select
-                    value={formData.category}
-                    onValueChange={(value) => setFormData({ ...formData, category: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {categories.map((category) => (
-                        <SelectItem key={category.value} value={category.value}>
-                          {category.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Input
+                    id="category"
+                    value={newFormat.category}
+                    onChange={(e) => setNewFormat({ ...newFormat, category: e.target.value })}
+                    placeholder="카테고리"
+                  />
                 </div>
               </div>
-
               <div>
                 <Label htmlFor="description">설명</Label>
-                <Textarea
-                  id="description"
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="이 산출물 형식에 대한 상세한 설명을 입력하세요"
-                  rows={3}
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="file_extension">파일 확장자</Label>
-                  <Input
-                    id="file_extension"
-                    value={formData.file_extension}
-                    onChange={(e) => setFormData({ ...formData, file_extension: e.target.value })}
-                    placeholder="예: .md"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="mime_type">MIME 타입</Label>
-                  <Input
-                    id="mime_type"
-                    value={formData.mime_type}
-                    onChange={(e) => setFormData({ ...formData, mime_type: e.target.value })}
-                    placeholder="예: text/markdown"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <Label htmlFor="template_structure">템플릿 구조</Label>
-                <Textarea
-                  id="template_structure"
-                  value={formData.template_structure}
-                  onChange={(e) => setFormData({ ...formData, template_structure: e.target.value })}
-                  placeholder="이 형식의 기본 템플릿 구조를 정의하세요"
-                  rows={5}
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="validation_rules">검증 규칙 (쉼표로 구분)</Label>
                 <Input
-                  id="validation_rules"
-                  value={formData.validation_rules}
-                  onChange={(e) => setFormData({ ...formData, validation_rules: e.target.value })}
-                  placeholder="예: 제목 필수, 최소 100자, 마크다운 문법 준수"
+                  id="description"
+                  value={newFormat.description}
+                  onChange={(e) => setNewFormat({ ...newFormat, description: e.target.value })}
+                  placeholder="포맷 설명을 입력하세요"
                 />
               </div>
-
               <div>
-                <Label htmlFor="example_output">예시 출력</Label>
+                <Label htmlFor="template">템플릿 내용</Label>
                 <Textarea
-                  id="example_output"
-                  value={formData.example_output}
-                  onChange={(e) => setFormData({ ...formData, example_output: e.target.value })}
-                  placeholder="이 형식의 예시 출력을 작성해주세요"
-                  rows={6}
+                  id="template"
+                  value={newFormat.template}
+                  onChange={(e) => setNewFormat({ ...newFormat, template: e.target.value })}
+                  placeholder="템플릿 내용을 입력하세요"
+                  rows={12}
+                  className="font-mono text-sm"
                 />
               </div>
-
-              <div className="flex space-x-6">
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="supports_versioning"
-                    checked={formData.supports_versioning}
-                    onCheckedChange={(checked) => setFormData({ ...formData, supports_versioning: checked })}
-                  />
-                  <Label htmlFor="supports_versioning">버전 관리 지원</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="is_binary"
-                    checked={formData.is_binary}
-                    onCheckedChange={(checked) => setFormData({ ...formData, is_binary: checked })}
-                  />
-                  <Label htmlFor="is_binary">바이너리 형식</Label>
-                </div>
-              </div>
-
-              <div className="flex justify-end space-x-2">
-                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+              <div className="flex gap-2 pt-4">
+                <Button onClick={handleSave} className="flex-1">
+                  {editingFormat ? "수정" : "추가"}
+                </Button>
+                <Button variant="outline" onClick={() => setIsDialogOpen(false)} className="flex-1">
                   취소
                 </Button>
-                <Button type="submit">{editingFormat ? "수정" : "생성"}</Button>
               </div>
-            </form>
+            </div>
           </DialogContent>
         </Dialog>
       </div>
 
-      {/* 산출물 형식 목록 */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {outputFormats.map((outputFormat) => {
-          const categoryInfo = getCategoryInfo(outputFormat.category)
-          const CategoryIcon = categoryInfo.icon
+      {/* 검색 */}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+        <Input
+          placeholder="포맷 검색..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="pl-10"
+        />
+      </div>
 
-          return (
-            <Card key={outputFormat.id} className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-indigo-100 rounded-lg">
-                      <CategoryIcon className="h-5 w-5 text-indigo-600" />
-                    </div>
-                    <div>
-                      <CardTitle className="text-lg">{outputFormat.name}</CardTitle>
-                      <CardDescription>{categoryInfo.label}</CardDescription>
-                    </div>
-                  </div>
-                  <div className="flex space-x-1">
-                    {outputFormat.supports_versioning && (
-                      <Badge variant="secondary" className="text-xs">
-                        버전관리
-                      </Badge>
-                    )}
-                    {outputFormat.is_binary && (
-                      <Badge variant="outline" className="text-xs">
-                        바이너리
-                      </Badge>
-                    )}
-                  </div>
+      {/* 통계 */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-2xl font-bold text-green-600">{formats.length}</div>
+            <div className="text-sm text-gray-600">총 포맷</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-2xl font-bold text-blue-600">{formats.reduce((sum, f) => sum + f.usage, 0)}</div>
+            <div className="text-sm text-gray-600">총 사용횟수</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-2xl font-bold text-purple-600">
+              {[...new Set(formats.map((f) => f.category))].length}
+            </div>
+            <div className="text-sm text-gray-600">카테고리 수</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* 포맷 목록 */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {filteredFormats.map((format) => (
+          <Card key={format.id} className="hover:shadow-lg transition-shadow">
+            <CardHeader>
+              <div className="flex justify-between items-start">
+                <div>
+                  <CardTitle className="text-lg">{format.title}</CardTitle>
+                  <CardDescription className="mt-1">{format.description}</CardDescription>
                 </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-sm text-gray-600">{outputFormat.description}</p>
-
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <Badge variant="outline" className="text-xs">
-                      {outputFormat.file_extension}
-                    </Badge>
-                    <span className="text-xs text-gray-500">{outputFormat.mime_type}</span>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <p className="text-sm font-medium text-gray-700">검증 규칙:</p>
-                  <div className="flex flex-wrap gap-1">
-                    {outputFormat.validation_rules.slice(0, 2).map((rule, index) => (
-                      <Badge key={index} variant="outline" className="text-xs">
-                        {rule}
-                      </Badge>
-                    ))}
-                    {outputFormat.validation_rules.length > 2 && (
-                      <Badge variant="outline" className="text-xs">
-                        +{outputFormat.validation_rules.length - 2}
-                      </Badge>
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex justify-end space-x-2 pt-2">
-                  <Button size="sm" variant="outline" onClick={() => handleEdit(outputFormat)}>
+                <div className="flex gap-1">
+                  <Button variant="ghost" size="sm" onClick={() => handleDownload(format)}>
+                    <Download className="h-4 w-4" />
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={() => handleEdit(format)}>
                     <Edit className="h-4 w-4" />
                   </Button>
-                  <Button size="sm" variant="outline" onClick={() => handleDelete(outputFormat.id)}>
+                  <Button variant="ghost" size="sm" onClick={() => handleDelete(format.id)}>
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
-              </CardContent>
-            </Card>
-          )
-        })}
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <div className="text-sm text-gray-700 bg-gray-50 p-3 rounded font-mono max-h-40 overflow-y-auto">
+                  <pre className="whitespace-pre-wrap">{format.template}</pre>
+                </div>
+                <div className="flex justify-between items-center">
+                  <div className="flex gap-2">
+                    <Badge variant="secondary">{format.category}</Badge>
+                    <Badge variant="outline">{format.format}</Badge>
+                  </div>
+                  <span className="text-xs text-gray-500">사용 {format.usage}회</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
     </div>
   )

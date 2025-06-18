@@ -20,7 +20,7 @@ const outputFormats = [
   {
     id: 2,
     name: "React Component",
-    description: "재사용 가능한 React 컴포넌트 코드",
+    description: "���사용 가능한 React 컴포넌트 코드",
     file_extension: ".tsx",
     mime_type: "text/typescript",
     category: "code",

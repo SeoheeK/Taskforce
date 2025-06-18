@@ -24,7 +24,7 @@ export function Sidebar() {
       <div className="flex items-center h-16 px-6 border-b border-gray-200">
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-sm">T</span>
+            <span className="text-white font-bold text-sm">TF</span>
           </div>
           <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             Taskforce
@@ -33,10 +33,18 @@ export function Sidebar() {
       </div>
 
       {/* 새 태스크포스 버튼 */}
-      <div className="p-4">
+      <div className="p-4 space-y-3">
         <Link href="/taskforce/new">
           <Button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg">
-            <Plus className="h-4 w-4 mr-2" />새 태스크포스
+            <Plus className="h-4 w-4 mr-2" />
+            New AI Team Project
+          </Button>
+        </Link>
+
+        <Link href="/meeting/new">
+          <Button className="w-full bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700 text-white shadow-lg">
+            <Users className="h-4 w-4 mr-2" />
+            Simple Meeting
           </Button>
         </Link>
       </div>
