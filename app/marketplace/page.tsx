@@ -15,7 +15,7 @@ interface MarketplaceItem {
 async function getMarketplaceItems(): Promise<MarketplaceItem[]> {
   // In a real application, you would fetch this from your API
   // For now, let's use a placeholder fetch
-  const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/marketplace/items`, {
+  const res = await fetch("/api/marketplace/items", {
     cache: "no-store", // Ensure fresh data
   })
   if (!res.ok) {
