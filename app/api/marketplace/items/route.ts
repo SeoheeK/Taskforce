@@ -9,7 +9,10 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(items)
   } catch (error) {
     console.error("Error fetching marketplace items:", error)
-    return NextResponse.json({ error: "Failed to fetch marketplace items" }, { status: 500 })
+    return NextResponse.json(
+      { error: "Failed to fetch marketplace items", details: (error as Error).message },
+      { status: 500 },
+    )
   }
 }
 
