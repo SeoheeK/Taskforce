@@ -26,14 +26,80 @@ interface MarketplaceItem {
   creator_id: string
 }
 
+// Mock data for UI development and testing
 async function getMarketplaceItems(): Promise<MarketplaceItem[]> {
-  const res = await fetch("/api/marketplace/items", {
-    cache: "no-store", // Ensure fresh data
-  })
-  if (!res.ok) {
-    throw new Error("Failed to fetch marketplace items")
-  }
-  return res.json()
+  return [
+    {
+      id: "mock-1",
+      name: "데이터 분석 페르소나",
+      description: "복잡한 데이터를 분석하고 통찰력을 제공하는 전문가 페르소나입니다.",
+      type: "Persona",
+      price: 15.99,
+      is_paid: true,
+      file_url: "/mock-files/data-analyst-persona.json",
+      creator_id: "user-1",
+    },
+    {
+      id: "mock-2",
+      name: "브레인스토밍 프롬프트 템플릿",
+      description: "창의적인 아이디어를 도출하기 위한 효과적인 브레인스토밍 프롬프트 모음입니다.",
+      type: "Prompt 템플릿",
+      price: 0,
+      is_paid: false,
+      file_url: "/mock-files/brainstorming-prompts.json",
+      creator_id: "user-2",
+    },
+    {
+      id: "mock-3",
+      name: "Agile AI 워크플로우",
+      description: "애자일 방법론을 AI 프로젝트에 적용하기 위한 워크플로우 템플릿입니다.",
+      type: "Workflow 템플릿",
+      price: 29.99,
+      is_paid: true,
+      file_url: "/mock-files/agile-ai-workflow.json",
+      creator_id: "user-3",
+    },
+    {
+      id: "mock-4",
+      name: "회의록 Output Format",
+      description: "AI가 자동으로 회의록을 생성할 수 있도록 최적화된 출력 포맷입니다.",
+      type: "Output Format",
+      price: 0,
+      is_paid: false,
+      file_url: "/mock-files/meeting-minutes-format.json",
+      creator_id: "user-4",
+    },
+    {
+      id: "mock-5",
+      name: "정책 기획 MCP 전략",
+      description: "정책 수립 과정에서 AI 에이전트 간의 효율적인 토론을 위한 MCP 전략입니다.",
+      type: "MCP 전략",
+      price: 22.5,
+      is_paid: true,
+      file_url: "/mock-files/policy-planning-mcp.json",
+      creator_id: "user-1",
+    },
+    {
+      id: "mock-6",
+      name: "프로젝트 관리 평가표",
+      description: "AI 프로젝트의 성과를 체계적으로 평가하기 위한 템플릿입니다.",
+      type: "평가표 템플릿",
+      price: 0,
+      is_paid: false,
+      file_url: "/mock-files/project-evaluation.json",
+      creator_id: "user-5",
+    },
+    {
+      id: "mock-7",
+      name: "고객 서비스 페르소나",
+      description: "친절하고 효율적인 고객 응대를 위한 AI 에이전트 페르소나입니다.",
+      type: "Persona",
+      price: 12.0,
+      is_paid: true,
+      file_url: "/mock-files/customer-service-persona.json",
+      creator_id: "user-2",
+    },
+  ]
 }
 
 // Re-using resource categories structure for consistent display
