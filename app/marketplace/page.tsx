@@ -1,8 +1,33 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import { MarketplaceItemCard } from "@/components/marketplace-item-card"
 
-export default function MarketplaceHome() {
+interface MarketplaceItem {
+  id: string
+  name: string
+  description: string
+  type: string
+  price: number
+  is_paid: boolean
+  file_url?: string
+}
+
+async function getMarketplaceItems(): Promise<MarketplaceItem[]> {
+  // In a real application, you would fetch this from your API
+  // For now, let's use a placeholder fetch
+  const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/marketplace/items`, {
+    cache: "no-store", // Ensure fresh data
+  })
+  if (!res.ok) {
+    // This will activate the closest `error.js` Error Boundary
+    throw new Error("Failed to fetch marketplace items")
+  }
+  return res.json()
+}
+
+export default async function MarketplaceHome() {
+  const items = await getMarketplaceItems()
+
   return (
     <div className="space-y-8">
       <div className="text-center">
@@ -16,43 +41,11 @@ export default function MarketplaceHome() {
       </div>
 
       <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* Placeholder for ItemCard components */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Example Template</CardTitle>
-            <CardDescription>A powerful template for data analysis.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-xl font-semibold">$29.99</p>
-            <Button asChild className="mt-4">
-              <Link href="/marketplace/item/123">View Details</Link>
-            </Button>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>AI Persona: Marketing Guru</CardTitle>
-            <CardDescription>Expert persona for campaign design.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-xl font-semibold">$19.99</p>
-            <Button asChild className="mt-4">
-              <Link href="/marketplace/item/456">View Details</Link>
-            </Button>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Project Workflow: Agile AI</CardTitle>
-            <CardDescription>Streamlined workflow for AI product development.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-xl font-semibold">$39.99</p>
-            <Button asChild className="mt-4">
-              <Link href="/marketplace/item/789">View Details</Link>
-            </Button>
-          </CardContent>
-        </Card>
+        {items.length === 0 ? (
+          <p className="col-span-full text-center text-gray-500">No marketplace items found. Be the first to upload!</p>
+        ) : (
+          items.map((item) => <MarketplaceItemCard key={item.id} item={item} />)
+        )}
       </section>
     </div>
   )
