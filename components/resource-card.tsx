@@ -5,7 +5,7 @@ import type React from "react"
 import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { ArrowRight, Share2 } from "lucide-react"
+import { ArrowRight } from "lucide-react" // Removed Share2
 
 interface ResourceItem {
   id: number
@@ -70,12 +70,7 @@ export function ResourceCard({ item }: ResourceCardProps) {
               <ArrowRight className="h-3 w-3 ml-2 group-hover:translate-x-1 transition-transform" />
             </Button>
           </Link>
-          <Link href="/marketplace/upload">
-            <Button variant="outline" size="sm" className="w-full">
-              <Share2 className="h-3 w-3 mr-2" />
-              마켓플레이스에 공유
-            </Button>
-          </Link>
+          {/* Removed "마켓플레이스에 공유" button */}
         </div>
       </CardContent>
     </Card>
