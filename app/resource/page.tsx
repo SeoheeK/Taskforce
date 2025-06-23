@@ -16,7 +16,7 @@ import {
   Settings,
   Plus,
   X,
-  Search,
+  Share2,
 } from "lucide-react"
 
 import { useState } from "react"
@@ -24,7 +24,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { ResourceCard } from "@/components/resource-card"
+import { ResourceCard } from "@/components/resource-card" // Import the new ResourceCard component
 
 const resourceCategories = [
   // 🤖 AI 에이전트 설정
@@ -256,10 +256,10 @@ export default function ResourcePage() {
           <p className="text-gray-600 mt-2">AI 에이전트와 PM 도구를 체계적으로 관리하는 리소스 센터입니다</p>
         </div>
         <div className="flex space-x-3">
-          <Link href="/marketplace">
+          <Link href="/marketplace/upload">
             <Button variant="outline">
-              <Search className="h-4 w-4 mr-2" />
-              리소스 탐색
+              <Share2 className="h-4 w-4 mr-2" />
+              마켓플레이스에 공유
             </Button>
           </Link>
           <Dialog>
@@ -351,7 +351,7 @@ export default function ResourcePage() {
           {/* 카테고리 아이템들 */}
           <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {category.items.map((item) => (
-              <ResourceCard key={item.id} item={item} />
+              <ResourceCard key={item.id} item={item} /> // Use the new ResourceCard component
             ))}
           </div>
         </div>
