@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { ArrowLeftIcon, DownloadIcon } from "lucide-react"
+import { ArrowLeft, Download } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
@@ -123,7 +123,7 @@ export default function MarketplaceItemPage({ params }: { params: { id: string }
     <div className="space-y-6">
       <Button variant="outline" asChild>
         <Link href="/marketplace">
-          <ArrowLeftIcon className="mr-2 h-4 w-4" /> Back to Marketplace
+          <ArrowLeft className="mr-2 h-4 w-4" /> Back to Marketplace
         </Link>
       </Button>
 
@@ -146,7 +146,7 @@ export default function MarketplaceItemPage({ params }: { params: { id: string }
               <>
                 <span className="text-2xl font-bold text-green-600">Free</span>
                 <Button onClick={handleDownload}>
-                  <DownloadIcon className="mr-2 h-4 w-4" /> Download
+                  <Download className="mr-2 h-4 w-4" /> Download
                 </Button>
               </>
             )}
