@@ -200,7 +200,9 @@ export default function MarketplaceHome() {
       <div className="text-center space-y-2">
         <h1 className="text-5xl font-bold text-gray-900 dark:text-gray-50">Resource</h1>
         <p className="text-lg text-gray-600 dark:text-gray-400">
-          지시 사항이나 지식 보강은 물론, 온갖 스킬을 다양하게 조합한 ChatGPT의 맞춤형 버전을 탐색하고 만들어 보세요.
+          직접 만든 AI 프롬프트, 에이전트 설정, 전략 문서, 템플릿을 판매하세요.  
+          필요한 사람들에게 리소스를 유료로 제공하고, 수익을 얻을 수 있습니다.  
+          지금 등록하고 첫 판매를 경험해보세요.
         </p>
       </div>
 
@@ -209,7 +211,7 @@ export default function MarketplaceHome() {
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
         <Input
           type="text"
-          placeholder="GPT 검색"
+          placeholder="Resource 검색"
           className="w-full pl-10 pr-4 py-2 rounded-full border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
