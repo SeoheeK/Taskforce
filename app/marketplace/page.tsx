@@ -200,7 +200,7 @@ export default function MarketplaceHome() {
       <div className="text-center space-y-2">
         <h1 className="text-5xl font-bold text-gray-900 dark:text-gray-50">Resource</h1>
         <p className="text-lg text-gray-600 dark:text-gray-400">
-          직접 만든 AI 프롬프트, 에이전트 설정, 전략 문서, 템플릿을 판매하세요.  
+          직접 만든 AI 프롬프트, 에이전트 설정, 전략 문서, 템플릿을 판매하세요.<br />  
           필요한 사람들에게 리소스를 유료로 제공하고, 수익을 얻을 수 있습니다.  
           지금 등록하고 첫 판매를 경험해보세요.
         </p>
