@@ -198,7 +198,7 @@ export default function MarketplaceHome() {
     <div className="p-6 space-y-8 max-w-6xl mx-auto">
       {/* Header Section */}
       <div className="text-center space-y-2">
-        <h1 className="text-5xl font-bold text-gray-900 dark:text-gray-50">GPT</h1>
+        <h1 className="text-5xl font-bold text-gray-900 dark:text-gray-50">Resource</h1>
         <p className="text-lg text-gray-600 dark:text-gray-400">
           지시 사항이나 지식 보강은 물론, 온갖 스킬을 다양하게 조합한 ChatGPT의 맞춤형 버전을 탐색하고 만들어 보세요.
         </p>

@@ -34,7 +34,7 @@ const initialWorkflows = [
   },
   {
     id: 2,
-    name: "마케팅 캠페인",
+    name: "���케팅 캠페인",
     description: "디지털 마케팅 캠페인 기획부터 실행까지의 전체 프로세스",
     category: "마케팅",
     steps: 6,
