@@ -62,6 +62,54 @@ const projectDomains = [
     title: "Policy / Public",
     tags: ["Policy Proposal", "Gov Collaboration", "Public Data"],
   },
+  {
+    id: "compliance-risk",
+    icon: "⚖️",
+    title: "Compliance / Risk",
+    tags: ["ESG", "Internal Audit", "Risk Assessment"],
+  },
+  {
+    id: "finance-investment",
+    icon: "💰",
+    title: "Finance / Investment",
+    tags: ["Budget", "M&A", "Investment Analysis"],
+  },
+  {
+    id: "hr-organization",
+    icon: "👥",
+    title: "HR / Organization",
+    tags: ["Org Design", "Learning", "Recruiting"],
+  },
+  {
+    id: "sustainability-esg",
+    icon: "🌱",
+    title: "Sustainability / ESG",
+    tags: ["Carbon Strategy", "CSR", "Reporting"],
+  },
+  {
+    id: "data-analytics",
+    icon: "📊",
+    title: "Data / Analytics",
+    tags: ["Data Strategy", "Predictive Analytics", "BI"],
+  },
+  {
+    id: "legal-ip",
+    icon: "📜",
+    title: "Legal / IP",
+    tags: ["Contract Review", "IP Strategy", "Legal Risk"],
+  },
+  {
+    id: "change-management",
+    icon: "🔄",
+    title: "Change Management",
+    tags: ["Transformation", "Change Readiness"],
+  },
+  {
+    id: "partnership-ecosystem",
+    icon: "🤝",
+    title: "Partnership / Ecosystem",
+    tags: ["Alliance", "Open Innovation"],
+  },
 ]
 
 const toggleOptions = [
@@ -451,7 +499,7 @@ export default function NewTaskforcePage() {
                 variant="outline"
                 onClick={handlePrevious}
                 disabled={currentStep === 1}
-                className="text-sm flex items-center space-x-2"
+                className="text-sm flex items-center space-x-2 bg-transparent"
               >
                 <ArrowLeft className="w-4 h-4" />
                 <span>Previous</span>

@@ -1,285 +1,218 @@
 "use client"
 
 import type React from "react"
+
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { MarketplaceItemCard } from "@/components/marketplace-item-card"
-import {
-  Search,
-  Filter,
-  ArrowDownWideNarrow,
-  Flame,
-  ChevronLeft,
-  ChevronRight,
-  Globe,
-  Code,
-  ImageIcon,
-  Video,
-  Languages,
-  Volume2,
-  Box,
-  Scan,
-  Text,
-  PenTool,
-  FileQuestionIcon as Question,
-  BarChart,
-  Mic,
-} from "lucide-react"
+import { Search } from "lucide-react"
 import { useSearchParams, useRouter } from "next/navigation"
-import { useState, useEffect, useMemo } from "react"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { format } from "date-fns"
-import { ko } from "date-fns/locale"
+import { useState, useEffect } from "react"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu"
+import { ListFilter, ArrowDownWideNarrow } from "lucide-react"
 
 interface MarketplaceItem {
   id: string
   name: string
   description: string
-  type: string
+  type: string // This 'type' should match the 'title' in resourceCategories.items
   price: number
   is_paid: boolean
   file_url?: string
   creator_id: string
-  creator_name?: string
-  likes: number
-  downloads: number
-  updated_at: string // ISO string
-  gradient_from?: string
-  gradient_to?: string
-  status?: string
-  status_icon?: React.ElementType
+  creator_name?: string // Added for mock data
+  likes: number // New
+  updated_at: string // New (ISO string for simplicity in mock)
+  downloads: number // New
 }
 
 // Mock data for UI development and testing
 const mockMarketplaceItems: MarketplaceItem[] = [
   {
     id: "mock-1",
-    name: "Hunyuan3D-2.1",
-    description: "Image-to-3D Generation",
-    type: "Image Generation",
+    name: "데이터 분석 페르소나",
+    description: "복잡한 데이터를 분석하고 통찰력을 제공하는 전문가 페르소나입니다.",
+    type: "Persona",
     price: 15.99,
     is_paid: true,
     file_url: "/mock-files/data-analyst-persona.json",
     creator_id: "user-1",
-    creator_name: "tencent",
-    likes: 378,
-    downloads: 150,
-    updated_at: "2024-06-20T10:00:00Z", // 3 days ago
-    gradient_from: "from-red-500",
-    gradient_to: "to-orange-500",
-    status: "Running on ZERO",
-    status_icon: Globe,
+    creator_name: "AI Solutions Inc.",
+    likes: 120, // Added
+    updated_at: "2024-05-20T10:00:00Z", // Added
+    downloads: 500, // Added
   },
   {
     id: "mock-2",
-    name: "PartPacker",
-    description: "Part-level image-to-3D generation.",
-    type: "Video Generation",
+    name: "브레인스토밍 프롬프트 템플릿",
+    description: "창의적인 아이디어를 도출하기 위한 효과적인 브레인스토밍 프롬프트 모음입니다.",
+    type: "Prompt 템플릿",
     price: 0,
     is_paid: false,
     file_url: "/mock-files/brainstorming-prompts.json",
     creator_id: "user-2",
-    creator_name: "nvidia",
-    likes: 189,
-    downloads: 500,
-    updated_at: "2024-06-18T14:30:00Z", // 5 days ago
-    gradient_from: "from-blue-500",
-    gradient_to: "to-indigo-500",
-    status: "Running on ZERO",
-    status_icon: Globe,
+    creator_name: "Creative AI",
+    likes: 350,
+    updated_at: "2024-06-15T14:30:00Z",
+    downloads: 1200,
   },
   {
     id: "mock-3",
-    name: "Pixel3dmm [Image Mode]",
-    description: "Versatile Single-Image 3D Face Reconstruction",
-    type: "3D Modeling",
+    name: "Agile AI 워크플로우",
+    description: "애자일 방법론을 AI 프로젝트에 적용하기 위한 워크플로우 템플릿입니다.",
+    type: "Workflow 템플릿",
     price: 29.99,
     is_paid: true,
     file_url: "/mock-files/agile-ai-workflow.json",
     creator_id: "user-3",
-    creator_name: "alexnasa",
-    likes: 66,
-    downloads: 1200,
-    updated_at: "2024-06-19T08:00:00Z", // 4 days ago
-    gradient_from: "from-green-500",
-    gradient_to: "to-teal-500",
-    status: "Running on ZERO",
-    status_icon: Globe,
+    creator_name: "Workflow Masters",
+    likes: 80,
+    updated_at: "2024-04-01T09:00:00Z",
+    downloads: 300,
   },
   {
     id: "mock-4",
-    name: "NAG Wan2-1-fast",
-    description: "Demo of Normalized Attention Guidance for 4 steps Wan2.1",
-    type: "Text Generation",
+    name: "회의록 Output Format",
+    description: "AI가 자동으로 회의록을 생성할 수 있도록 최적화된 출력 포맷입니다.",
+    type: "Output Format",
     price: 0,
     is_paid: false,
     file_url: "/mock-files/meeting-minutes-format.json",
     creator_id: "user-4",
-    creator_name: "ChenDY",
-    likes: 60,
-    downloads: 50,
-    updated_at: "2024-06-09T11:00:00Z", // 14 days ago
-    gradient_from: "from-emerald-600",
-    gradient_to: "to-green-600",
-    status: "Running",
+    creator_name: "Meeting AI",
+    likes: 210,
+    updated_at: "2024-06-20T11:00:00Z",
+    downloads: 800,
   },
   {
     id: "mock-5",
-    name: "MiniMax M1",
-    description: "Generate code from text prompts",
-    type: "Code Generation",
+    name: "정책 기획 MCP 전략",
+    description: "정책 수립 과정에서 AI 에이전트 간의 효율적인 토론을 위한 MCP 전략입니다.",
+    type: "MCP 전략",
     price: 22.5,
     is_paid: true,
     file_url: "/mock-files/policy-planning-mcp.json",
     creator_id: "user-1",
-    creator_name: "MiniMaxAI",
-    likes: 244,
-    downloads: 2500,
-    updated_at: "2024-06-23T06:00:00Z", // about 18 hours ago
-    gradient_from: "from-purple-500",
-    gradient_to: "to-pink-500",
-    status: "Running",
+    creator_name: "AI Solutions Inc.",
+    likes: 95,
+    updated_at: "2024-05-05T16:00:00Z",
+    downloads: 450,
   },
   {
     id: "mock-6",
-    name: "ScouterAI",
-    description: "The agent using over 9000 vision models from the HF Hub.",
-    type: "Object Detection",
+    name: "프로젝트 관리 평가표",
+    description: "AI 프로젝트의 성과를 체계적으로 평가하기 위한 템플릿입니다.",
+    type: "평가표 템플릿",
     price: 0,
     is_paid: false,
     file_url: "/mock-files/project-evaluation.json",
     creator_id: "user-5",
-    creator_name: "Agents-MCP-Hackathon",
-    likes: 58,
-    downloads: 300,
-    updated_at: "2024-06-17T16:00:00Z", // 6 days ago
-    gradient_from: "from-green-600",
-    gradient_to: "to-teal-600",
-    status: "Running",
+    creator_name: "Project Success",
+    likes: 180,
+    updated_at: "2024-06-01T08:00:00Z",
+    downloads: 700,
   },
   {
     id: "mock-7",
-    name: "Nanonets OCR",
-    description: "Demo for Nanonets-OCR",
-    type: "Text Analysis",
+    name: "고객 서비스 페르소나",
+    description: "친절하고 효율적인 고객 응대를 위한 AI 에이전트 페르소나입니다.",
+    type: "Persona",
     price: 12.0,
     is_paid: true,
     file_url: "/mock-files/customer-service-persona.json",
     creator_id: "user-2",
-    creator_name: "MohamedRashad",
-    likes: 59,
-    downloads: 1800,
-    updated_at: "2024-06-18T13:00:00Z", // 5 days ago
-    gradient_from: "from-cyan-500",
-    gradient_to: "to-blue-500",
-    status: "Running on ZERO",
-    status_icon: Globe,
+    creator_name: "Service AI",
+    likes: 280,
+    updated_at: "2024-06-10T13:00:00Z",
+    downloads: 950,
   },
   {
     id: "mock-8",
-    name: "Sparc3D",
-    description: "Next-Gen High-Resolution 3D Model Generation",
-    type: "3D Modeling",
+    name: "마케팅 캠페인 프로젝트 템플릿",
+    description: "성공적인 마케팅 캠페인 기획을 위한 프로젝트 템플릿입니다.",
+    type: "프로젝트 템플릿",
     price: 35.0,
     is_paid: true,
     file_url: "/mock-files/marketing-project.json",
     creator_id: "user-3",
-    creator_name: "1lcve21",
-    likes: 678,
-    downloads: 700,
-    updated_at: "2024-06-22T10:00:00Z", // 1 day ago
-    gradient_from: "from-orange-500",
-    gradient_to: "to-red-500",
-    status: "Running",
+    creator_name: "Marketing Pro",
+    likes: 60,
+    updated_at: "2024-04-25T10:00:00Z",
+    downloads: 250,
   },
   {
     id: "mock-9",
-    name: "DeepSite v2",
-    description: "Generate any application with DeepSeek",
-    type: "Code Generation",
+    name: "주간 보고서 산출물 템플릿",
+    description: "주간 업무 보고서 작성을 위한 표준화된 산출물 템플릿입니다.",
+    type: "산출물 템플릿",
     price: 0,
     is_paid: false,
     file_url: "/mock-files/weekly-report.json",
     creator_id: "user-4",
-    creator_name: "enzostvs",
-    likes: 8480, // 8.48k
-    downloads: 400,
-    updated_at: "2024-06-20T10:00:00Z", // 3 days ago
-    gradient_from: "from-blue-600",
-    gradient_to: "to-indigo-600",
-    status: "Running",
+    creator_name: "Report Genie",
+    likes: 150,
+    updated_at: "2024-06-22T09:00:00Z",
+    downloads: 600,
   },
   {
     id: "mock-10",
-    name: "HunYuan3D-2.1",
-    description: "Image-to-3D Generation",
-    type: "Image Generation",
+    name: "온라인 미팅 포맷",
+    description: "효율적인 온라인 회의 진행을 위한 포맷 가이드입니다.",
+    type: "회의 유형 / 포맷",
     price: 5.0,
     is_paid: true,
     file_url: "/mock-files/online-meeting-format.json",
     creator_id: "user-5",
-    creator_name: "tencent",
-    likes: 378,
-    downloads: 100,
-    updated_at: "2024-06-20T10:00:00Z", // 3 days ago
-    gradient_from: "from-red-500",
-    gradient_to: "to-orange-500",
-    status: "Running on ZERO",
-    status_icon: Globe,
-  },
-  {
-    id: "mock-11",
-    name: "MiniMax M1",
-    description: "Generate code from text prompts",
-    type: "Code Generation",
-    price: 10.0,
-    is_paid: true,
-    file_url: "/mock-files/online-meeting-format.json",
-    creator_id: "user-1",
-    creator_name: "MiniMaxAI",
-    likes: 244,
-    downloads: 80,
-    updated_at: "2024-06-23T06:00:00Z", // about 18 hours ago
-    gradient_from: "from-purple-500",
-    gradient_to: "to-pink-500",
-    status: "Running",
+    creator_name: "Meeting Facilitator",
+    likes: 110,
+    updated_at: "2024-05-10T11:00:00Z",
+    downloads: 400,
   },
 ]
 
 // Resource categories for filtering
 const resourceCategories = [
-  { title: "Image Generation", value: "Image Generation", icon: ImageIcon },
-  { title: "Video Generation", value: "Video Generation", icon: Video },
-  { title: "Text Generation", value: "Text Generation", icon: Text },
-  { title: "Language Translation", value: "Language Translation", icon: Languages },
-  { title: "Speech Synthesis", value: "Speech Synthesis", icon: Volume2 },
-  { title: "3D Modeling", value: "3D Modeling", icon: Box },
-  { title: "Object Detection", value: "Object Detection", icon: Scan },
-  { title: "Text Analysis", value: "Text Analysis", icon: Text },
-  { title: "Image Editing", value: "Image Editing", icon: PenTool },
-  { title: "Code Generation", value: "Code Generation", icon: Code },
-  { title: "Question Answering", value: "Question Answering", icon: Question },
-  { title: "Data Visualization", value: "Data Visualization", icon: BarChart },
-  { title: "Voice Chat", value: "Voice Chat", icon: Mic },
+  { title: "All", value: "All" },
+  { title: "Persona", value: "Persona" },
+  { title: "Prompt 템플릿", value: "Prompt 템플릿" },
+  { title: "MCP 전략", value: "MCP 전략" },
+  { title: "Output Format", value: "Output Format" },
+  { title: "Workflow 템플릿", value: "Workflow 템플릿" },
+  { title: "평가표 템플릿", value: "평가표 템플릿" },
+  { title: "프로젝트 템플릿", value: "프로젝트 템플릿" },
+  { title: "산출물 템플릿", value: "산출물 템플릿" },
+  { title: "회의 유형 / 포맷", value: "회의 유형 / 포맷" },
 ]
 
 export default function MarketplaceHome() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const initialSearchQuery = searchParams.get("q") || ""
-  const initialCategory = searchParams.get("type") || "" // Default to empty for "All"
-  const initialSort = searchParams.get("sort") || "relevance"
+  const initialCategory = searchParams.get("type") || "All"
 
   const [searchQuery, setSearchQuery] = useState(initialSearchQuery)
   const [selectedCategory, setSelectedCategory] = useState(initialCategory)
-  const [sortBy, setSortBy] = useState(initialSort)
-  const [currentDate, setCurrentDate] = useState(new Date(2025, 5, 23)) // June 23, 2025
+  const [sortBy, setSortBy] = useState("latest") // 'latest', 'likes', 'downloads'
+  const [isPaidFilter, setIsPaidFilter] = useState<"all" | "paid" | "free">("all")
 
   useEffect(() => {
     setSearchQuery(initialSearchQuery)
     setSelectedCategory(initialCategory)
-    setSortBy(initialSort)
-  }, [initialSearchQuery, initialCategory, initialSort])
+    const initialPaidFilter = searchParams.get("paid")
+    if (initialPaidFilter === "true") {
+      setIsPaidFilter("paid")
+    } else if (initialPaidFilter === "false") {
+      setIsPaidFilter("free")
+    } else {
+      setIsPaidFilter("all")
+    }
+  }, [initialSearchQuery, initialCategory, searchParams])
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -294,8 +227,7 @@ export default function MarketplaceHome() {
 
   const handleCategoryClick = (category: string) => {
     const params = new URLSearchParams(searchParams.toString())
-    if (category) {
-      // Only set if not empty string (which represents "All")
+    if (category !== "All") {
       params.set("type", category)
     } else {
       params.delete("type")
@@ -303,163 +235,129 @@ export default function MarketplaceHome() {
     router.push(`/marketplace?${params.toString()}`)
   }
 
-  const handleSortChange = (value: string) => {
+  const handlePaidFilterClick = (filter: "all" | "paid" | "free") => {
     const params = new URLSearchParams(searchParams.toString())
-    params.set("sort", value)
+    if (filter === "paid") {
+      params.set("paid", "true")
+    } else if (filter === "free") {
+      params.set("paid", "false")
+    } else {
+      params.delete("paid")
+    }
     router.push(`/marketplace?${params.toString()}`)
   }
 
-  const handleDateChange = (direction: "prev" | "next") => {
-    setCurrentDate((prevDate) => {
-      const newDate = new Date(prevDate)
-      if (direction === "prev") {
-        newDate.setDate(newDate.getDate() - 7) // Go back a week
-      } else {
-        newDate.setDate(newDate.getDate() + 7) // Go forward a week
-      }
-      return newDate
-    })
-  }
-
-  const filteredAndSortedItems = useMemo(() => {
-    const items = mockMarketplaceItems.filter((item) => {
+  const sortedAndFilteredItems = [...mockMarketplaceItems]
+    .filter((item) => {
       const matchesSearch = searchQuery
         ? item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
           item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
           (item.creator_name && item.creator_name.toLowerCase().includes(searchQuery.toLowerCase()))
         : true
-      const matchesCategory = !selectedCategory || item.type === selectedCategory // Empty string for "All"
-      return matchesSearch && matchesCategory
+      const matchesCategory = selectedCategory === "All" || item.type === selectedCategory
+      const matchesPaidFilter =
+        isPaidFilter === "all" ||
+        (isPaidFilter === "paid" && item.is_paid) ||
+        (isPaidFilter === "free" && !item.is_paid)
+      return matchesSearch && matchesCategory && matchesPaidFilter
+    })
+    .sort((a, b) => {
+      if (sortBy === "latest") {
+        return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+      } else if (sortBy === "likes") {
+        return b.likes - a.likes
+      } else if (sortBy === "downloads") {
+        return b.downloads - a.downloads
+      }
+      return 0
     })
 
-    // Apply sorting
-    switch (sortBy) {
-      case "likes":
-        items.sort((a, b) => b.likes - a.likes)
-        break
-      case "downloads":
-        items.sort((a, b) => b.downloads - a.downloads)
-        break
-      case "updated_at":
-        items.sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
-        break
-      case "relevance":
-      default:
-        // For mock data, relevance is just default order.
-        // In a real app, this would involve more complex ranking.
-        break
-    }
-    return items
-  }, [searchQuery, selectedCategory, sortBy])
-
-  // For "Spaces of the week" section, just take a few items for demonstration
-  const spacesOfTheWeekItems = useMemo(() => {
-    // Example: take the first 4 items, or filter by a specific date range if mock data supported it
-    return filteredAndSortedItems.slice(0, 4)
-  }, [filteredAndSortedItems])
-
   return (
-    <div className="p-6 space-y-8 max-w-7xl mx-auto">
+    <div className="p-6 space-y-8 max-w-6xl mx-auto">
       {/* Header Section */}
       <div className="text-center space-y-2">
-        <h1 className="text-5xl font-bold text-gray-900 dark:text-gray-50">Spaces</h1>
-        <p className="text-lg text-gray-600 dark:text-gray-400">The AI App Directory</p>
+        <h1 className="text-5xl font-bold text-gray-900 dark:text-gray-50">Resource</h1>
+        <p className="text-lg text-gray-600 dark:text-gray-400">
+          직접 만든 AI 프롬프트, 에이전트 설정, 전략 문서, 템플릿을 판매하세요.
+          <br />
+          필요한 사람들에게 리소스를 유료로 제공하고, 수익을 얻을 수 있습니다. 지금 등록하고 첫 판매를 경험해보세요.
+        </p>
       </div>
 
-      {/* Top Category Navigation */}
-      <div className="flex justify-center space-x-6 overflow-x-auto pb-2 scrollbar-hide">
-        {resourceCategories.map((category) => {
-          const Icon = category.icon
-          return (
-            <Button
-              key={category.value}
-              variant="ghost"
-              onClick={() => handleCategoryClick(category.value)}
-              className={`flex flex-col items-center space-y-1 text-sm ${
-                selectedCategory === category.value ? "text-blue-600 font-semibold" : "text-gray-600"
-              }`}
-            >
-              {Icon && <Icon className="h-6 w-6" />}
-              <span>{category.title}</span>
-            </Button>
-          )
-        })}
+      {/* Search Bar */}
+      <form onSubmit={handleSearch} className="relative w-full max-w-2xl mx-auto">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+        <Input
+          type="text"
+          placeholder="Resource 검색"
+          className="w-full pl-10 pr-4 py-2 rounded-full border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </form>
+
+      {/* Category Navigation */}
+      <div className="flex justify-center space-x-4 overflow-x-auto pb-2 scrollbar-hide">
+        {resourceCategories.map((category) => (
+          <Button
+            key={category.value}
+            variant={selectedCategory === category.value ? "default" : "ghost"}
+            onClick={() => handleCategoryClick(category.value)}
+            className="flex-shrink-0 px-4 py-2 rounded-full text-base"
+          >
+            {category.title}
+          </Button>
+        ))}
       </div>
 
-      {/* Date Navigation and Filter/Sort Controls */}
-      <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0 sm:space-x-4">
-        {/* Spaces of the week / Date Navigation */}
-        <div className="flex items-center space-x-2 bg-gray-100 dark:bg-gray-800 px-4 py-2 rounded-full">
-          <Flame className="h-5 w-5 text-orange-500" />
-          <span className="font-semibold text-gray-800 dark:text-gray-200">Spaces of the week</span>
-          <Button variant="ghost" size="icon" onClick={() => handleDateChange("prev")}>
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <span className="text-sm font-medium">{format(currentDate, "dd MMM yyyy", { locale: ko })}</span>
-          <Button variant="ghost" size="icon" onClick={() => handleDateChange("next")}>
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </div>
-
-        {/* Filter and Sort Controls */}
-        <div className="flex items-center space-x-4 w-full sm:w-auto justify-end">
-          <div className="relative flex-grow sm:flex-grow-0">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <Input
-              type="text"
-              placeholder="Filter by name"
-              className="w-full pl-9 pr-4 py-2 rounded-full border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") handleSearch(e)
-              }}
-            />
+      {/* Featured Section */}
+      <section className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-50">Featured</h2>
+          <div className="flex space-x-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="flex items-center gap-2">
+                  <ListFilter className="w-4 h-4" />
+                  필터
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => handleCategoryClick("All")}>All Categories</DropdownMenuItem>
+                {resourceCategories.slice(1).map((category) => (
+                  <DropdownMenuItem key={category.value} onClick={() => handleCategoryClick(category.value)}>
+                    {category.title}
+                  </DropdownMenuItem>
+                ))}
+                <DropdownMenuSeparator /> {/* Add a separator for clarity */}
+                <DropdownMenuItem onClick={() => handlePaidFilterClick("all")}>All Prices</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handlePaidFilterClick("paid")}>Paid</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handlePaidFilterClick("free")}>Free</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="flex items-center gap-2">
+                  <ArrowDownWideNarrow className="w-4 h-4" />
+                  정렬
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setSortBy("latest")}>최신 업데이트</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSortBy("likes")}>인기순 (좋아요)</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSortBy("downloads")}>다운로드순</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
-          <Button variant="outline" className="flex items-center space-x-2">
-            <Filter className="h-4 w-4" />
-            <span>Filters (0)</span>
-          </Button>
-          <Select onValueChange={handleSortChange} value={sortBy}>
-            <SelectTrigger className="w-[180px]">
-              <ArrowDownWideNarrow className="h-4 w-4 mr-2" />
-              <SelectValue placeholder="Sort by" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="relevance">Sort: Relevance</SelectItem>
-              <SelectItem value="likes">Sort: Likes</SelectItem>
-              <SelectItem value="downloads">Sort: Downloads</SelectItem>
-              <SelectItem value="updated_at">Sort: Updated Date</SelectItem>
-            </SelectContent>
-          </Select>
         </div>
-      </div>
-
-      {/* Spaces of the week Section */}
-      <section className="space-y-4">
-        <div className="flex items-center space-x-2">
-          <Flame className="h-5 w-5 text-orange-500" />
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-50">Spaces of the week</h2>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {spacesOfTheWeekItems.length === 0 ? (
-            <p className="col-span-full text-center text-gray-500">이번 주에 해당하는 스페이스가 없습니다.</p>
-          ) : (
-            spacesOfTheWeekItems.map((item) => <MarketplaceItemCard key={item.id} item={item} />)
-          )}
-        </div>
-      </section>
-
-      {/* All running apps, trending first Section */}
-      <section className="space-y-4">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-50">All running apps, trending first</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {filteredAndSortedItems.length === 0 ? (
-            <p className="col-span-full text-center text-gray-500 mt-8">
+        <p className="text-gray-600 dark:text-gray-400 font-bold">Curated top picks from this week</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-4">
+          {sortedAndFilteredItems.length === 0 ? (
+            <p className="col-span-full text-center text-gray-500">
               선택한 카테고리 또는 검색어에 해당하는 리소스가 없습니다.
             </p>
           ) : (
-            filteredAndSortedItems.map((item) => <MarketplaceItemCard key={item.id} item={item} />)
+            sortedAndFilteredItems.map((item) => <MarketplaceItemCard key={item.id} item={item} />)
           )}
         </div>
       </section>
