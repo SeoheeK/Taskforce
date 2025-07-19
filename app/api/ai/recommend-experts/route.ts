@@ -1,6 +1,8 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { generateText } from "ai"
-import { openai } from "@ai-sdk/openai"
+
+// Remove the AI SDK imports since we don't have API keys in demo
+// import { generateText } from "ai"
+// import { openai } from "@ai-sdk/openai"
 
 const availableExperts = [
   {
@@ -65,59 +67,10 @@ export async function POST(request: NextRequest) {
   const { title, description, background, challenges, template } = await request.json()
 
   try {
-    const { text } = await generateText({
-      model: openai("gpt-4o-mini"),
-      system: `당신은 프로젝트 분석 전문가입니다. 주어진 프로젝트 정보를 분석하여 필요한 전문가들을 추천해주세요.
+    // Since we don't have OpenAI API key in demo, use intelligent fallback
+    const recommendations = getIntelligentRecommendations(title, description, template, background, challenges)
 
-사용 가능한 전문가들:
-${availableExperts
-  .map((expert) => `- ${expert.name} (${expert.role}): ${expert.description} [키워드: ${expert.keywords.join(", ")}]`)
-  .join("\n")}
-
-각 전문가에 대해 다음 정보를 JSON 배열로 반환해주세요:
-- id: 전문가 ID
-- relevanceScore: 프로젝트와의 적합도 (0-100)
-- reason: 왜 이 전문가가 필요한지 구체적인 이유 (100자 이내)
-- priority: "high" (필수), "medium" (권장), "low" (선택) 중 하나
-
-적합도가 30 이상인 전문가만 포함하고, 적합도 순으로 정렬해주세요.`,
-
-      prompt: `프로젝트 정보:
-제목: ${title}
-설명: ${description}
-배경: ${background}
-도전과제: ${challenges || "없음"}
-템플릿: ${template}
-
-이 프로젝트에 필요한 전문가들을 분석하고 추천해주세요.`,
-    })
-
-    // AI 응답을 파싱하여 JSON으로 변환
-    let recommendations
-    try {
-      recommendations = JSON.parse(text)
-    } catch (parseError) {
-      // AI 응답이 JSON이 아닌 경우 기본 추천 로직 사용
-      recommendations = getDefaultRecommendations(title, description, template)
-    }
-
-    // 전문가 정보와 결합
-    const enrichedRecommendations = recommendations
-      .map((rec: any) => {
-        const expert = availableExperts.find((e) => e.id === rec.id)
-        if (!expert) return null
-
-        return {
-          ...expert,
-          relevanceScore: rec.relevanceScore,
-          reason: rec.reason,
-          priority: rec.priority,
-        }
-      })
-      .filter(Boolean)
-      .sort((a: any, b: any) => b.relevanceScore - a.relevanceScore)
-
-    return NextResponse.json(enrichedRecommendations)
+    return NextResponse.json(recommendations)
   } catch (error) {
     console.error("전문가 추천 실패:", error)
 
@@ -127,11 +80,123 @@ ${availableExperts
   }
 }
 
-function getDefaultRecommendations(title: string, description: string, template: string) {
-  const text = `${title} ${description}`.toLowerCase()
+function getIntelligentRecommendations(
+  title: string,
+  description: string,
+  template: string,
+  background?: string,
+  challenges?: string,
+) {
+  const text = `${title} ${description} ${background || ""} ${challenges || ""}`.toLowerCase()
 
   const recommendations = availableExperts.map((expert) => {
     let score = 0
+    let reason = `${expert.role}의 전문성이 프로젝트에 도움이 될 것입니다.`
+    let priority: "high" | "medium" | "low" = "medium"
+
+    // 키워드 매칭으로 점수 계산
+    expert.keywords.forEach((keyword) => {
+      if (text.includes(keyword.toLowerCase())) {
+        score += 25
+      }
+    })
+
+    // 역할별 키워드 매칭
+    const roleKeywords = {
+      "Strategic Planner": ["전략", "기획", "계획", "분석", "비즈니스"],
+      "Technical Lead": ["개발", "기술", "시스템", "앱", "웹", "프로그래밍"],
+      "UX Designer": ["디자인", "UI", "UX", "사용자", "인터페이스"],
+      "Data Analyst": ["데이터", "분석", "통계", "지표", "측정"],
+      "Marketing Specialist": ["마케팅", "홍보", "브랜딩", "고객", "캠페인"],
+      "Product Manager": ["관리", "프로젝트", "일정", "계획", "로드맵"],
+      "Quality Assurance": ["품질", "테스트", "검증", "버그", "QA"],
+    }
+
+    const expertRoleKeywords = roleKeywords[expert.role as keyof typeof roleKeywords] || []
+    expertRoleKeywords.forEach((keyword) => {
+      if (text.includes(keyword)) {
+        score += 20
+      }
+    })
+
+    // 템플릿 기반 추천
+    switch (template) {
+      case "mobile-app":
+        if (expert.role.includes("Technical") || expert.role.includes("Designer")) {
+          score += 40
+          priority = "high"
+          reason = "모바일 앱 개발에 핵심적인 역할을 담당합니다."
+        } else if (expert.role.includes("Product Manager")) {
+          score += 30
+          priority = "high"
+          reason = "앱 개발 프로젝트 관리와 일정 조율이 필요합니다."
+        }
+        break
+      case "marketing-campaign":
+        if (expert.role.includes("Marketing")) {
+          score += 50
+          priority = "high"
+          reason = "마케팅 캠페인의 핵심 전문가입니다."
+        } else if (expert.role.includes("Analyst")) {
+          score += 35
+          priority = "high"
+          reason = "캠페인 성과 측정과 데이터 분석이 필수입니다."
+        }
+        break
+      case "business-strategy":
+        if (expert.role.includes("Strategic")) {
+          score += 50
+          priority = "high"
+          reason = "비즈니스 전략 수립의 핵심 전문가입니다."
+        } else if (expert.role.includes("Analyst")) {
+          score += 40
+          priority = "high"
+          reason = "전략 수립을 위한 데이터 분석이 필요합니다."
+        }
+        break
+      case "product-launch":
+        if (expert.role.includes("Product Manager")) {
+          score += 45
+          priority = "high"
+          reason = "제품 출시 프로젝트의 총괄 관리가 필요합니다."
+        } else if (expert.role.includes("Marketing")) {
+          score += 40
+          priority = "high"
+          reason = "제품 출시를 위한 마케팅 전략이 필수입니다."
+        }
+        break
+    }
+
+    // 프로젝트 내용 기반 세부 매칭
+    if (text.includes("헬스케어") || text.includes("의료")) {
+      if (expert.role.includes("Technical") || expert.role.includes("Designer")) {
+        score += 25
+        reason = "헬스케어 앱 개발에 필요한 기술적 전문성을 제공합니다."
+      }
+    }
+
+    // 우선순위 조정
+    if (score >= 80) priority = "high"
+    else if (score >= 50) priority = "medium"
+    else priority = "low"
+
+    return {
+      ...expert,
+      relevanceScore: Math.min(score, 100),
+      reason,
+      priority,
+    }
+  })
+
+  return recommendations.filter((rec) => rec.relevanceScore >= 30).sort((a, b) => b.relevanceScore - a.relevanceScore)
+}
+
+function getDefaultRecommendations(title: string, description: string, template: string) {
+  // Keep the existing function as fallback
+  const text = `${title} ${description}`.toLowerCase()
+
+  const recommendations = availableExperts.map((expert) => {
+    let score = 40 // Base score
     let reason = `${expert.role}의 전문성이 프로젝트에 도움이 될 것입니다.`
     let priority: "high" | "medium" | "low" = "medium"
 

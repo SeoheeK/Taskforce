@@ -6,7 +6,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { ModernSidebar } from "@/components/modern-sidebar"
-import { ModernHeader } from "@/components/modern-header"
 import { Plus, Search, Calendar, Clock, Users, MessageSquare } from "lucide-react"
 import Link from "next/link"
 
@@ -98,7 +97,6 @@ export default function MeetingPage() {
     <div className="min-h-screen bg-gray-50">
       <ModernSidebar />
       <div className="ml-16">
-        <ModernHeader />
         <main className="p-6">
           {/* 헤더 섹션 */}
           <div className="flex justify-between items-center mb-6">
@@ -107,7 +105,7 @@ export default function MeetingPage() {
               <p className="text-gray-600 mt-1">팀 미팅 기록을 관리하고 새로운 미팅을 계획하세요</p>
             </div>
             <Link href="/meeting/new">
-              <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg">
+              <Button className="bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 hover:from-green-600 hover:via-emerald-600 hover:to-teal-600 text-white shadow-lg">
                 <Plus className="h-4 w-4 mr-2" />
                 New Meeting
               </Button>
@@ -228,7 +226,7 @@ export default function MeetingPage() {
               <h3 className="text-lg font-medium text-gray-900 mb-2">미팅이 없습니다</h3>
               <p className="text-gray-600 mb-4">새로운 미팅을 생성하여 팀과 협업을 시작하세요</p>
               <Link href="/meeting/new">
-                <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+                <Button className="bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 hover:from-green-600 hover:via-emerald-600 hover:to-teal-600">
                   <Plus className="h-4 w-4 mr-2" />첫 번째 미팅 만들기
                 </Button>
               </Link>

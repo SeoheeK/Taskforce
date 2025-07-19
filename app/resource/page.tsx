@@ -1,7 +1,6 @@
 "use client"
 
 import Link from "next/link"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import {
   Bot,
@@ -14,10 +13,10 @@ import {
   FolderIcon as FolderTemplate,
   FileOutput,
   Users,
-  ArrowRight,
   Settings,
   Plus,
   X,
+  Share2,
 } from "lucide-react"
 
 import { useState } from "react"
@@ -25,6 +24,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { ResourceCard } from "@/components/resource-card" // Import the new ResourceCard component
 
 const resourceCategories = [
   // 🤖 AI 에이전트 설정
@@ -38,48 +38,48 @@ const resourceCategories = [
         id: 11,
         title: "Persona",
         description: "이름, 역할, 말투, 전문분야, 제약조건 등 AI Agent 성격 설정",
-        href: "/personas",
+        href: "/resource/personas",
         icon: Bot,
         color: "from-blue-500 to-cyan-500",
         stats: { total: 12, active: 8 },
-        features: ["성격 설정", "전문분야 정의", "말투 조정", "제약조건 설정"],
+        features: ["마케팅 전문가", "개발팀 리더", "UI/UX 디자이너", "데이터 분석가"],
       },
       {
         id: 12,
         title: "Prompt 템플릿",
         description: "역할/상황별 프롬프트 조각 모듈화 (기획 요청, 반론 유도 등)",
-        href: "/prompt-templates",
+        href: "/resource/prompt-templates",
         icon: MessageSquare,
         color: "from-purple-500 to-pink-500",
         stats: { total: 24, active: 18 },
-        features: ["프롬프트 모듈화", "상황별 템플릿", "반론 유도", "기획 요청"],
+        features: ["브레인스토밍 시작", "아이디어 평가", "결론 도출", "반박 의견 제시"],
       },
       {
         id: 13,
         title: "MCP 전략",
         description: "토론 및 의사결정 흐름 제어 규칙 (round-robin, voting 등)",
-        href: "/mcp-strategy",
+        href: "/resource/mcp-strategy",
         icon: Zap,
         color: "from-orange-500 to-red-500",
         stats: { total: 8, active: 6 },
-        features: ["토론 흐름 제어", "의사결정 규칙", "Round-robin", "Voting 시스템"],
+        features: ["Round Robin", "Majority Vote", "Consensus Building", "Expert Priority"],
       },
       {
         id: 14,
         title: "Output Format",
         description: "AI가 출력할 문서 포맷 정의 (예: 회의록, 요약문, 테이블)",
-        href: "/output-formats",
+        href: "/resource/output-formats",
         icon: FileText,
         color: "from-green-500 to-teal-500",
         stats: { total: 15, active: 12 },
-        features: ["문서 포맷 정의", "회의록 템플릿", "요약문 구조", "테이블 형식"],
+        features: ["회의록 템플릿", "프로젝트 계획서", "분석 보고서", "요약 문서"],
       },
     ],
   },
   // 👩‍💼 PM 도구 (운영/관리자용)
   {
     id: 2,
-    category: "PM 도구 (운영/관리자용)",
+    category: "Project Management Tool",
     categoryIcon: Briefcase,
     categoryColor: "from-indigo-500 to-purple-500",
     items: [
@@ -87,57 +87,57 @@ const resourceCategories = [
         id: 21,
         title: "Workflow 템플릿",
         description: "특정 산업/분야별 업무 전개 흐름 템플릿 (예: 정책기획, 시공 프로세스 등)",
-        href: "/workflow-templates",
+        href: "/resource/workflow-templates",
         icon: GitBranch,
         color: "from-indigo-500 to-blue-500",
         stats: { total: 18, active: 14 },
-        features: ["산업별 템플릿", "업무 흐름 정의", "정책기획 프로세스", "시공 관리"],
+        features: ["소프트웨어 개발", "마케팅 캠페인", "제품 기획", "정책 수립"],
       },
       {
         id: 22,
         title: "평가표 템플릿",
         description: "AI Task 결과물 평가 항목 세트 (정확성, 창의성, 실현가능성 등)",
-        href: "/evaluation-templates",
+        href: "/resource/evaluation-templates",
         icon: ClipboardList,
         color: "from-yellow-500 to-orange-500",
         stats: { total: 12, active: 9 },
-        features: ["평가 항목 설정", "정확성 측정", "창의성 평가", "실현가능성 검토"],
+        features: ["창의성 평가", "실현가능성 검토", "비용 효율성", "리스크 분석"],
       },
       {
         id: 23,
         title: "프로젝트 템플릿",
-        description: "과거 성공 프로젝트의 세팅 값(PM/페르소나/MCP) 저장·재사용",
-        href: "/project-templates",
+        description: "과거 프로젝트의 세팅 값(규칙/참여페르소나/MCP 등)을 유사프로젝트에 활용할 수 있도록 템플릿화",
+        href: "/resource/project-templates",
         icon: FolderTemplate,
         color: "from-pink-500 to-rose-500",
         stats: { total: 25, active: 20 },
-        features: ["성공 프로젝트 저장", "세팅 값 재사용", "PM 설정", "페르소나 조합"],
+        features: ["스타트업 MVP", "기업 혁신 프로젝트", "교육 프로그램", "연구개발 과제"],
       },
       {
         id: 24,
         title: "산출물 템플릿",
         description: "보고서/계획서 등의 정형 문서 구조 (Markdown / Table 등)",
-        href: "/deliverable-templates",
+        href: "/resource/deliverable-templates",
         icon: FileOutput,
         color: "from-emerald-500 to-green-500",
         stats: { total: 32, active: 28 },
-        features: ["문서 구조 정의", "보고서 템플릿", "계획서 양식", "Markdown 구조"],
+        features: ["사업계획서", "기술문서", "마케팅 자료", "교육 콘텐츠"],
       },
       {
         id: 25,
         title: "회의 유형 / 포맷",
         description: "주제 발제형, 브레인스토밍형, 정리형 등 회의 운영 방식 정의",
-        href: "/meeting-formats",
+        href: "/resource/meeting-formats",
         icon: Users,
         color: "from-cyan-500 to-blue-500",
         stats: { total: 10, active: 8 },
-        features: ["회의 유형 정의", "브레인스토밍", "주제 발제", "정리형 회의"],
+        features: ["아이디어 발굴 회의", "의사결정 회의", "진행상황 점검", "문제해결 세션"],
       },
     ],
   },
 ]
 
-// 색상 옵션들
+// 색상 옵션들 (순서대로 선택됨)
 const colorOptions = [
   "from-blue-500 to-cyan-500",
   "from-purple-500 to-pink-500",
@@ -151,7 +151,7 @@ const colorOptions = [
   "from-emerald-500 to-green-500",
 ]
 
-// 아이콘 옵션들
+// 아이콘 옵션들 (순서대로 선택됨)
 const iconOptions = [
   { icon: Bot, name: "Bot" },
   { icon: MessageSquare, name: "MessageSquare" },
@@ -174,8 +174,6 @@ export default function ResourcePage() {
     title: "",
     description: "",
     features: [""],
-    selectedIcon: 0,
-    selectedColor: 0,
   })
 
   const addFeature = () => {
@@ -203,13 +201,24 @@ export default function ResourcePage() {
       const targetCategory = categories[selectedCategory]
       const newId = Math.max(...targetCategory.items.map((item) => item.id)) + 1
 
+      // 아이콘과 색상을 순서대로 자동 선택
+      const iconIndex = targetCategory.items.length % iconOptions.length
+      const colorIndex = targetCategory.items.length % colorOptions.length
+
+      // URL 친화적인 slug 생성
+      const slug = newResourceType.title
+        .toLowerCase()
+        .replace(/[^a-z0-9가-힣]/g, "-")
+        .replace(/-+/g, "-")
+        .replace(/^-|-$/g, "")
+
       const newResource = {
         id: newId,
         title: newResourceType.title,
         description: newResourceType.description,
-        href: `/${newResourceType.title.toLowerCase().replace(/\s+/g, "-")}`,
-        icon: iconOptions[newResourceType.selectedIcon].icon,
-        color: colorOptions[newResourceType.selectedColor],
+        href: `/resource/${slug}`, // 동적 라우트로 변경
+        icon: iconOptions[iconIndex].icon,
+        color: colorOptions[colorIndex],
         stats: { total: 0, active: 0 },
         features: newResourceType.features.filter((f) => f.trim() !== ""),
       }
@@ -223,8 +232,6 @@ export default function ResourcePage() {
         title: "",
         description: "",
         features: [""],
-        selectedIcon: 0,
-        selectedColor: 0,
       })
 
       setIsDialogOpen(false)
@@ -236,8 +243,6 @@ export default function ResourcePage() {
       title: "",
       description: "",
       features: [""],
-      selectedIcon: 0,
-      selectedColor: 0,
     })
     setIsDialogOpen(false)
   }
@@ -247,11 +252,17 @@ export default function ResourcePage() {
       {/* 헤더 */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Resource Management</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Resource Center</h1>
           <p className="text-gray-600 mt-2">AI 에이전트와 PM 도구를 체계적으로 관리하는 리소스 센터입니다</p>
         </div>
         <div className="flex space-x-3">
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <Link href="/marketplace/upload">
+            <Button variant="outline">
+              <Share2 className="h-4 w-4 mr-2" />
+              마켓플레이스에 공유
+            </Button>
+          </Link>
+          <Dialog>
             <DialogTrigger asChild>
               <Button>
                 <Settings className="h-4 w-4 mr-2" />
@@ -263,26 +274,7 @@ export default function ResourcePage() {
                 <DialogTitle>새 리소스 타입 추가</DialogTitle>
               </DialogHeader>
 
-              <div className="space-y-6 py-4">
-                <div>
-                  <Label>카테고리 선택</Label>
-                  <div className="grid grid-cols-2 gap-2 mt-2">
-                    {categories.map((category, index) => (
-                      <Button
-                        key={category.id}
-                        variant={selectedCategory === index ? "default" : "outline"}
-                        onClick={() => setSelectedCategory(index)}
-                        className="justify-start h-auto p-3"
-                      >
-                        <category.categoryIcon className="h-4 w-4 mr-2" />
-                        <div className="text-left">
-                          <div className="font-medium text-sm">{category.category}</div>
-                        </div>
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-
+              <div className="space-y-4 py-4">
                 <div>
                   <Label htmlFor="resourceTitle">Resource Type 이름</Label>
                   <Input
@@ -290,6 +282,7 @@ export default function ResourcePage() {
                     value={newResourceType.title}
                     onChange={(e) => setNewResourceType({ ...newResourceType, title: e.target.value })}
                     placeholder="예: Knowledge Base"
+                    className="mt-1"
                   />
                 </div>
 
@@ -301,53 +294,18 @@ export default function ResourcePage() {
                     onChange={(e) => setNewResourceType({ ...newResourceType, description: e.target.value })}
                     placeholder="이 리소스 타입에 대한 설명을 입력하세요"
                     rows={3}
+                    className="mt-1"
                   />
                 </div>
 
                 <div>
-                  <Label>아이콘 선택</Label>
-                  <div className="grid grid-cols-6 gap-2 mt-2">
-                    {iconOptions.map((iconOption, index) => (
-                      <Button
-                        key={index}
-                        variant={newResourceType.selectedIcon === index ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => setNewResourceType({ ...newResourceType, selectedIcon: index })}
-                        className="h-12 w-12 p-0"
-                      >
-                        <iconOption.icon className="h-5 w-5" />
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <Label>색상 선택</Label>
-                  <div className="grid grid-cols-5 gap-2 mt-2">
-                    {colorOptions.map((color, index) => (
-                      <Button
-                        key={index}
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setNewResourceType({ ...newResourceType, selectedColor: index })}
-                        className={`h-12 w-12 p-0 bg-gradient-to-r ${color} ${
-                          newResourceType.selectedColor === index ? "ring-2 ring-blue-500" : ""
-                        }`}
-                      >
-                        {newResourceType.selectedColor === index && <div className="h-4 w-4 bg-white rounded-full" />}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <Label>주요 기능</Label>
+                  <Label>자원 예시</Label>
                   {newResourceType.features.map((feature, index) => (
                     <div key={index} className="flex gap-2 mt-2">
                       <Input
                         value={feature}
                         onChange={(e) => updateFeature(index, e.target.value)}
-                        placeholder={`주요 기능 ${index + 1}`}
+                        placeholder={`자원 예시 ${index + 1}`}
                       />
                       {newResourceType.features.length > 1 && (
                         <Button variant="outline" size="sm" onClick={() => removeFeature(index)}>
@@ -358,7 +316,7 @@ export default function ResourcePage() {
                   ))}
                   <Button variant="outline" size="sm" onClick={addFeature} className="mt-2">
                     <Plus className="h-4 w-4 mr-2" />
-                    기능 추가
+                    예시 추가
                   </Button>
                 </div>
 
@@ -393,55 +351,76 @@ export default function ResourcePage() {
           {/* 카테고리 아이템들 */}
           <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {category.items.map((item) => (
-              <Card key={item.id} className="hover:shadow-lg transition-all duration-300 group">
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <div
-                      className={`h-10 w-10 bg-gradient-to-r ${item.color} rounded-lg flex items-center justify-center`}
-                    >
-                      <item.icon className="h-5 w-5 text-white" />
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xs text-gray-500">총 {item.stats.total}개</p>
-                      <p className="text-xs font-medium text-green-600">활성 {item.stats.active}개</p>
-                    </div>
-                  </div>
-                  <CardTitle className="text-base">{item.title}</CardTitle>
-                  <CardDescription className="text-gray-600 text-xs leading-relaxed">
-                    {item.description}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-3 pt-0">
-                  <div className="space-y-1">
-                    <p className="text-xs font-medium text-gray-700">주요 기능:</p>
-                    <ul className="space-y-0.5">
-                      {item.features.slice(0, 3).map((feature, index) => (
-                        <li key={index} className="text-xs text-gray-600 flex items-center">
-                          <div className="h-1 w-1 bg-gray-400 rounded-full mr-2" />
-                          {feature}
-                        </li>
-                      ))}
-                      {item.features.length > 3 && (
-                        <li className="text-xs text-gray-500">+{item.features.length - 3}개 더</li>
-                      )}
-                    </ul>
-                  </div>
-
-                  <Link href={item.href}>
-                    <Button
-                      size="sm"
-                      className="w-full group-hover:bg-gradient-to-r group-hover:from-blue-600 group-hover:to-purple-600 transition-all"
-                    >
-                      관리하기
-                      <ArrowRight className="h-3 w-3 ml-2 group-hover:translate-x-1 transition-transform" />
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
+              <ResourceCard key={item.id} item={item} /> // Use the new ResourceCard component
             ))}
           </div>
         </div>
       ))}
+
+      {/* Dialog for adding new resource type */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>새 리소스 타입 추가</DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <div>
+              <Label htmlFor="resourceTitle">Resource Type 이름</Label>
+              <Input
+                id="resourceTitle"
+                value={newResourceType.title}
+                onChange={(e) => setNewResourceType({ ...newResourceType, title: e.target.value })}
+                placeholder="예: Knowledge Base"
+                className="mt-1"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="resourceDescription">설명</Label>
+              <Textarea
+                id="resourceDescription"
+                value={newResourceType.description}
+                onChange={(e) => setNewResourceType({ ...newResourceType, description: e.target.value })}
+                placeholder="이 리소스 타입에 대한 설명을 입력하세요"
+                rows={3}
+                className="mt-1"
+              />
+            </div>
+
+            <div>
+              <Label>자원 예시</Label>
+              {newResourceType.features.map((feature, index) => (
+                <div key={index} className="flex gap-2 mt-2">
+                  <Input
+                    value={feature}
+                    onChange={(e) => updateFeature(index, e.target.value)}
+                    placeholder={`자원 예시 ${index + 1}`}
+                  />
+                  {newResourceType.features.length > 1 && (
+                    <Button variant="outline" size="sm" onClick={() => removeFeature(index)}>
+                      <X className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+              ))}
+              <Button variant="outline" size="sm" onClick={addFeature} className="mt-2">
+                <Plus className="h-4 w-4 mr-2" />
+                예시 추가
+              </Button>
+            </div>
+
+            <div className="flex gap-2 pt-4">
+              <Button onClick={createNewResourceType} className="flex-1">
+                생성
+              </Button>
+              <Button variant="outline" onClick={cancelCreate} className="flex-1">
+                취소
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

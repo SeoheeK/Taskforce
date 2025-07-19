@@ -424,13 +424,6 @@ export default function TotalProjectsPage() {
         </Button>
       </div>
 
-      {/* 키보드 네비게이션 안내 */}
-      <div className="text-sm text-gray-500 bg-gray-50 p-3 rounded-lg">
-        <p>
-          💡 <strong>키보드 네비게이션:</strong> ← → 화살표로 통계 카드 이동, Enter로 선택, Esc로 포커스 해제
-        </p>
-      </div>
-
       {/* 통계 카드 */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4" role="tablist" aria-label="프로젝트 상태별 필터">
         <Card

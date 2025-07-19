@@ -1,0 +1,9 @@
+CREATE TABLE IF NOT EXISTS stripe_accounts (
+    user_id UUID PRIMARY KEY REFERENCES users(id), -- Assuming a 'users' table exists
+    account_id VARCHAR(255) NOT NULL UNIQUE,
+    charges_enabled BOOLEAN NOT NULL DEFAULT FALSE,
+    payouts_enabled BOOLEAN NOT NULL DEFAULT FALSE,
+    details_submitted BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);

@@ -9,7 +9,19 @@ import { Label } from "@/components/ui/label"
 import { ModernSidebar } from "@/components/modern-sidebar"
 import { ModernHeader } from "@/components/modern-header"
 import { Badge } from "@/components/ui/badge"
-import { Users, MessageSquare, Send, Bot, User, Lightbulb, Target, CheckCircle, Clock, ArrowLeft } from "lucide-react"
+import {
+  Users,
+  MessageSquare,
+  Send,
+  Bot,
+  User,
+  Lightbulb,
+  Target,
+  CheckCircle,
+  Clock,
+  ArrowLeft,
+  Plus,
+} from "lucide-react"
 import Link from "next/link"
 
 // 임시 참가자 데이터
@@ -19,6 +31,16 @@ const availableParticipants = [
   { id: 3, name: "박기획", role: "Product Manager", avatar: "📋" },
   { id: 4, name: "최사용자", role: "UX Researcher", avatar: "🔍" },
   { id: 5, name: "정백엔드", role: "Backend Developer", avatar: "⚙️" },
+  { id: 6, name: "한데이터", role: "Data Scientist", avatar: "📊" },
+  { id: 7, name: "오데브옵", role: "DevOps Engineer", avatar: "☁️" },
+  { id: 8, name: "강분석", role: "Business Analyst", avatar: "📈" },
+  { id: 9, name: "성마케팅", role: "Marketing Manager", avatar: "📣" },
+  { id: 10, name: "윤세일즈", role: "Sales Director", avatar: "💰" },
+  { id: 11, name: "임에이치알", role: "HR Manager", avatar: "🤝" },
+  { id: 12, name: "고재무", role: "Finance Analyst", avatar: "🧮" },
+  { id: 13, name: "신법률", role: "Legal Advisor", avatar: "⚖️" },
+  { id: 14, name: "차고객", role: "Customer Success Manager", avatar: "🌟" },
+  { id: 15, name: "주기술", role: "Technical Writer", avatar: "✍️" },
 ]
 
 // 임시 메시지 데이터
@@ -85,7 +107,7 @@ export default function NewMeetingPage() {
     return (
       <div className="min-h-screen bg-gray-50">
         <ModernSidebar />
-        <div className="ml-16">
+        <div className="ml-8">
           <ModernHeader />
           <main className="p-6">
             {/* 헤더 */}
@@ -139,7 +161,7 @@ export default function NewMeetingPage() {
                   <CardDescription>미팅에 참여할 팀원을 선택하세요</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-2">
+                  <div className="space-y-2 max-h-80 overflow-y-auto">
                     {availableParticipants.map((participant) => (
                       <div
                         key={participant.id}
@@ -160,6 +182,18 @@ export default function NewMeetingPage() {
                         )}
                       </div>
                     ))}
+                    <div
+                      className="flex items-center p-3 rounded-lg border-2 border-dashed border-gray-300 cursor-pointer transition-colors hover:bg-gray-50 hover:border-gray-400"
+                      onClick={() => {}}
+                    >
+                      <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center mr-3">
+                        <Plus className="h-4 w-4 text-gray-600" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-medium text-gray-600">새 참가자 추가</p>
+                        <p className="text-sm text-gray-500">새로운 페르소나를 추가하세요</p>
+                      </div>
+                    </div>
                   </div>
                   <div className="mt-4">
                     <p className="text-sm text-gray-600">선택된 참가자: {selectedParticipants.length}명</p>
@@ -189,7 +223,7 @@ export default function NewMeetingPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <ModernSidebar />
-      <div className="ml-16">
+      <div className="ml-8">
         <ModernHeader />
         <main className="p-6">
           {/* 미팅 헤더 */}
